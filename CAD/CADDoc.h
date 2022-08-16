@@ -91,7 +91,8 @@ public:
 	double CalH(double z) ; // nt add 2017/6/2
 	int HasZB() ; // nt add 2017/5/27
 	double GetMeanZ() ; // nt add 2017/5/27
-	void CutAll(double z) ; // nt add 2017/5/27
+	 // 2022/08/16 smf modify: double to float
+	void CutAll(float z) ; // nt add 2017/5/27
 	void Draw(int drawMode, void* pVI) ;
 	void Redraw() ;
 	void ClearCmd() ;

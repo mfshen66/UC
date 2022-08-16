@@ -9,41 +9,41 @@ void isegmInit(ISEGM* segm)
 	{
 		segm->next = NULL ;
 		segm->facetId = 0 ;
-		segm->z1 = -MAX_DBL ;
-		segm->z2 = -MAX_DBL ;
+		segm->z1 = (float)-MAX_FLT; // 2022/08/16 smf modify: 强转double to float
+		segm->z2 = (float)-MAX_FLT; // 2022/08/16 smf modify: 强转double to float
 	}
 
 	return ;
 }
 
-void isegmInit2(ISEGM* segm, double z, UINT64 facetId)
+void isegmInit2(ISEGM* segm, float z, UINT facetId) // 2022/08/16 smf modify: UINT64 to UINT, double to float
 {
 	if( segm )
 	{
 		segm->next = NULL ;
 		segm->facetId = facetId ;
-		segm->z1 = -MAX_DBL ;
+		segm->z1 = (float)-MAX_FLT;
 		segm->z2 = z ;
 	}
 
 	return ;
 }
 
-int isegmMerge(ISEGM* segm, double z)
+int isegmMerge(ISEGM* segm, float z) // 2022/08/16 smf modify: double to float
 {
 	if( segm )
 	{
-		if( segm->z2 < 1-MAX_DBL )
+		if( segm->z2 < (float)(1- MAX_FLT) )
 			return 0 ;
-		if( segm->z1 < 1-MAX_DBL )
+		if( segm->z1 < (float)(1 - MAX_FLT))
 		{
-			segm->z1 = mathMIN(segm->z2, z) ;
-			segm->z2 = mathMAX(segm->z2, z) ;
+			segm->z1 = mathMIN(segm->z2, (float)z) ; // 2022/08/16 smf modify: 强转double to float
+			segm->z2 = mathMAX(segm->z2, (float)z) ; // 2022/08/16 smf modify: 强转double to float
 		}
 		else
 		{
-			segm->z1 = mathMIN(segm->z1, z) ;
-			segm->z2 = mathMAX(segm->z2, z) ;
+			segm->z1 = mathMIN(segm->z1, (float)z) ; // 2022/08/16 smf modify: 强转double to float
+			segm->z2 = mathMAX(segm->z2, (float)z) ; // 2022/08/16 smf modify: 强转double to float
 		}
 		return 1 ;
 	}
@@ -57,7 +57,7 @@ void sline2Init(SLINE2* line, PNT3D p)
 		p )
 	{
 		line->n = 0 ;
-		memcpy(line->p, p, sizeof(PNT3D)) ;
+		//memcpy(line->p, p, sizeof(PNT3D)) ;// 2022/08/16 smf modify: 注释掉
 		line->segms = NULL ;
 	}
 
@@ -69,9 +69,10 @@ void sline2Init2(SLINE2* line, double x, double y)
 	if( line )
 	{
 		line->n = 0 ;
-		line->p[0] = x ;
+		// 2022/08/16 smf modify: 注释掉
+		/*line->p[0] = x ;
 		line->p[1] = y ;
-		line->p[2] = 0. ;
+		line->p[2] = 0. ;*/
 		line->segms = NULL ;
 	}
 
@@ -93,7 +94,7 @@ void sline2FreeSegmAll(SLINE2* line)
 	return ;
 }
 
-int sline2Add(SLINE2* line, double z, UINT64 facetId)
+int sline2Add(SLINE2* line, float z, UINT facetId) // 2022/08/16 smf modify: UINT64 to UINT, double to float
 {
 	if( line )
 	{
@@ -117,7 +118,7 @@ int sline2Add(SLINE2* line, double z, UINT64 facetId)
 }
 
 // return 1=in, 0=out
-int sline2ChkPt(SLINE2* line, double z, double tol)
+int sline2ChkPt(SLINE2* line, float z, double tol) // 2022/08/16 smf modify: double to float
 {
 	ISEGM* segm ;
 
@@ -293,7 +294,7 @@ void zb2ResJ(ZB2* zb, int& j)
 
 // i: i_scanline along x axis
 // j: j_scanline along y axis
-int zb2Add(ZB2* zb, int i, int j, double z)
+int zb2Add(ZB2* zb, int i, int j, float z) // 2022/08/16 smf modify: double to float
 {
 	SLINE2* line = NULL ;
 
@@ -700,7 +701,7 @@ int zb2DrawZ(ZB2* zb, void* pVI)
 	return 1 ;
 }
 //--------------------------------------------------------------
-int zb2Cut(ZB2* zb, double z)
+int zb2Cut(ZB2* zb, float z) // 2022/08/16 smf modify: double to float
 {
 	int i, j, k ;
 	SLINE2* line ;

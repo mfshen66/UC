@@ -8,19 +8,21 @@ typedef struct _isegm ISEGM ; // intersection segment
 struct _isegm
 {
 	ISEGM* next ;
-	UINT64 facetId ;
-	double z1 ; // min
-	double z2 ; // max
+	UINT facetId ; // 2022/08/16 smf modify: UINT64 to UINT
+	// 2022/08/16 smf modify: double to float
+	float z1 ; // min
+	float z2 ; // max
 } ;
 
 void isegmInit(ISEGM* segm) ;
-void isegmInit2(ISEGM* segm, double z, UINT64 facetId) ;
-int isegmMerge(ISEGM* segm, double z) ;
+void isegmInit2(ISEGM* segm, float z, UINT facetId) ; // 2022/08/16 smf modify: UINT64 to UINT
+int isegmMerge(ISEGM* segm, float z) ;// 2022/08/16 smf modify: double to float
 //--------------------------------------------------------------
 typedef struct _sline2 SLINE2 ; // scan_line, direction=(0,0,1)
 struct _sline2
 {
-	PNT3D p ; // p[2] = 0.
+	// 2022/08/16 smf modify: 注释掉
+	//PNT3D p ; // p[2] = 0.
 	int n ; // ISEGM总数
 	ISEGM* segms ; // 链表
 } ;
@@ -28,8 +30,8 @@ struct _sline2
 void sline2Init(SLINE2* line, PNT3D p) ;
 void sline2Init2(SLINE2* line, double x, double y) ;
 void sline2FreeSegmAll(SLINE2* line) ;
-int sline2Add(SLINE2* line, double z, UINT64 facetId) ;
-int sline2ChkPt(SLINE2* line, double z, double tol) ;
+int sline2Add(SLINE2* line, float z, UINT facetId) ; // 2022/08/16 smf modify: UINT64 to UINT, double to float
+int sline2ChkPt(SLINE2* line, float z, double tol) ; // 2022/08/16 smf modify: double to float
 //--------------------------------------------------------------
 typedef struct _zb2 ZB2 ; // z-buffer模型
 struct _zb2
@@ -45,7 +47,7 @@ struct _zb2
 	double tol ;
 	double ang ;
 
-	UINT64 facetId ;
+	UINT facetId ; // 2022/08/16 smf modify: UINT64 to UINT
 	int nx ; // 共nx行
 	int ny ; // 共ny列
 	SLINE2** lines ;
@@ -65,7 +67,8 @@ int zb2GetNumOfSLineY(ZB2* zb) ;
 SLINE2* zb2GetSLine(ZB2* zb, int i, int j) ; // 取第i行第j列的扫描线
 void zb2ResI(ZB2* zb, int& i) ;
 void zb2ResJ(ZB2* zb, int& j) ;
-int zb2Add(ZB2* zb, int i, int j, double z) ; // 增加交点
+// 2022/08/16 smf modify: double to float
+int zb2Add(ZB2* zb, int i, int j, float z) ; // 增加交点
 int zb2SliceTriYZ(ZB2* zb, double xmin, double xmax, PNT3D A, PNT3D B, PNT3D C, VEC3D normal) ;
 int zb2SliceTriXZ(ZB2* zb, double ymin, double ymax, PNT3D A, PNT3D B, PNT3D C, VEC3D normal) ;
 int zb2SliceTri(ZB2* zb, PNT3D A, PNT3D B, PNT3D C) ;
@@ -76,7 +79,7 @@ int zb2SliceCB(ZB2* zb, CB* cb, PRG* pPrg) ; // nt add 2021/6/5
 int zb2Draw(ZB2* zb, void* pVI) ; // draw lines
 int zb2Draw2(ZB2* zb, void* pVI) ; // draw points
 int zb2DrawZ(ZB2* zb, void* pVI) ; // draw points on z-plane
-int zb2Cut(ZB2* zb, double z) ;
+int zb2Cut(ZB2* zb, float z) ; // 2022/08/16 smf modify: double to float
 uchar zb2GetPixel(ZB2* zb, int i, int j) ;
 ////////////////////////////////////////////////////////////////
 

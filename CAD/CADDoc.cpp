@@ -657,7 +657,7 @@ double CCADDoc::GetMeanZ()
 }
 
 // nt add 2017/5/27
-void CCADDoc::CutAll(double z)
+void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 {
 	for( STL* stl = m_stls ; stl ; stl = stl->next )
 	{
