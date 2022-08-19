@@ -187,6 +187,8 @@ public:
 	//afx_msg void OnComboDef();
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+
+	static void outPutSline2(ZB2 *zb2); //  2022/08/17 smf add: 输出Sline2的信息
 };
 //--------------------------------------------------------------
 // nt add 2017/5/14

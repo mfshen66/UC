@@ -304,6 +304,13 @@ int zb2Add(ZB2* zb, int i, int j, float z) // 2022/08/16 smf modify: double to f
 	if( sline2Add(line, z, zb->facetId) != 1 )
 		return 0 ; // memory error
 
+	 // 2022/08/16 smf add: 释放不与模型相交的sline2
+	if (line->n == 0)
+	{
+		sline2FreeSegmAll(line);
+		free(line);
+		line = NULL;
+	}
 	return 1 ;
 }
 //--------------------------------------------------------------
@@ -595,8 +602,14 @@ int zb2SliceCB(ZB2* zb, CB* cb, PRG* pPrg)
 
 	for( I = 0 ; I < nFacet ; I++ )
 	{
-		facetFree(facets[I]) ;
-		facetFree(Facets[I]) ;
+		facetFree(facets[I]);
+		facets[I] = NULL; // 2022/08/17 smf add
+		facetFree(Facets[I]);
+		Facets[I] = NULL; // 2022/08/17 smf add
+		facetFree(bfacets[I]); // 2022/08/17 smf add
+		bfacets[I] = NULL; // 2022/08/17 smf add
+		facetFree(bFacets[I]); // 2022/08/17 smf add
+		bFacets[I] = NULL; // 2022/08/17 smf add
 	}
 
 	return 1 ;

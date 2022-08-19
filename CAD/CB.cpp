@@ -1725,7 +1725,7 @@ void drawTestCube(CB * cb, int i, int j, int k)
 	glEnd();
 }
 
-int drawTestCell(CELL * iCell, CB* cb)
+void drawTestCell(CELL * iCell, CB* cb)
 {
 	// »­¸Ë
 	glLineWidth(6.f);
@@ -1748,7 +1748,6 @@ int drawTestCell(CELL * iCell, CB* cb)
 	int k = iCell->k;
 	// »­Íâ°üÂç
 	drawTestCube(cb, i, j, k);
-	return 0;
 }
 
 

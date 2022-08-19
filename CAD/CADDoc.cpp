@@ -1421,7 +1421,7 @@ void CCADDoc::Print(PRG* pPrg)
 			box.max[0] += r1 ;
 			box.max[1] += r1 ;
 			box.max[2] += r1 ;
-			cb = cbCreate(&box, cell_w, r1, r2, 1.e-8, 1.e-11) ;
+			cb = cbCreate(&box, cell_w, r1, r2, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
 			cbFill( cb, stl, pPrg, m_stls ) ;
 			if( stl->cb )
 				cbFree((CB*)(stl->cb)) ;
@@ -1433,8 +1433,11 @@ void CCADDoc::Print(PRG* pPrg)
 			box.min[0] -= r1 ;
 			box.min[1] -= r1 ;
 			box.min[2] -= r1 ;
-			zb3 = zb2Create(&box, w, m_h, 1.e-8, 1.e-11) ;
+			zb3 = zb2Create(&box, w, m_h, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
 			zb2SliceCB(zb3, (CB*)stl->cb, pPrg) ;
+
+			outPutSline2((ZB2*)stl->zb3); //  2022/08/17 smf add: 输出Sline2的信息
+
 			if( stl->zb3 )
 				zb2Free((ZB2*)(stl->zb3)) ;
 			stl->zb3 = zb3 ;
@@ -1656,20 +1659,24 @@ void CCADDoc::Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm)
 			{
 				zb = (ZB*)(stl->zb) ;
 				if( zb )
-					zbCut(zb, z) ;
+					// 2022/08/16 smf modify: 强转double to float
+					zbCut(zb, (float)z) ;
 				zb2 = (ZB2*)(stl->zb2) ; // nt add 2017/5/31
 				if( zb2 ) // nt add 2017/5/31
-					zb2Cut(zb2, z) ; // nt add 2017/5/31
+					 // 2022/08/16 smf modify: 强转double to float
+					zb2Cut(zb2, (float)z) ; // nt add 2017/5/31
 				parrayMergeZBZB2(parray, zb, zb2) ; // nt add 2017/5/31
 			}
 			else // stl->zb3 != NULL, nt add 2021/12/29
 			{
 				zb3 = (ZB2*)(stl->zb3) ;
-				if( zb3 )
-					zb2Cut(zb3, z) ;
+				if (zb3)
+					// 2022/08/16 smf modify: 强转double to float
+					zb2Cut(zb3, (float)z);
 				zb2 = (ZB2*)(stl->zb2) ; // nt add 2017/5/31
-				if( zb2 ) // nt add 2017/5/31
-					zb2Cut(zb2, z) ; // nt add 2017/5/31
+				if (zb2) // nt add 2017/5/31
+					 // 2022/08/16 smf modify: 强转double to float
+					zb2Cut(zb2, (float)z); // nt add 2017/5/31
 				parrayMergeZB2ZB2(parray, zb2, zb3) ; // nt add 2017/5/31
 			}
 
@@ -2475,6 +2482,36 @@ BOOL CCADDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	// TODO:  在此添加您专用的创建代码
 
 	return TRUE;
+}
+
+//  2022/08/17 smf add: 输出Sline2的信息
+void CCADDoc::outPutSline2(ZB2 * zb2)
+{
+	CString filePath;
+	efpGet(filePath); // 运行文件目录
+	filePath += _T("\\..\\Works\\OutPutZB3.txt");
+	FILE* fp = nullptr;
+	_tfopen_s(&fp, filePath.GetBuffer(0), _T("w"));
+	if (fp)
+	{
+
+		for (int ii = 0; ii < zb2->nx; ii++)
+		{
+			for (int jj = 0; jj < zb2->ny; jj++)
+			{
+				fprintf(fp, "/////////////////////////////////////////////\n");
+				fprintf(fp, "[%d, %d]\t%d\t\n", ii, jj, zb2->lines[ii][jj].n);
+				ISEGM * segment = zb2->lines[ii][jj].segms;
+				for (int kk = 0; kk < zb2->lines[ii][jj].n; kk++)
+				{
+					fprintf(fp, "[%d, %d]\t%d\t%d\t%f\t%f\n", ii, jj, kk, segment->facetId, segment->z1, segment->z2);
+					segment = segment->next;
+				}
+			}
+		}
+		fclose(fp);
+	}
+	fp = nullptr;
 }
 
 void CCADDoc::OnFileSave()

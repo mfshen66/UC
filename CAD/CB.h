@@ -134,7 +134,7 @@ int propertyOfClosestSTL(PNT3D p, STL* m_stls, STL * iCurrentSTL);
 int isPntAboveTri(PNT3D p, STLTRI* tri);
 int isPntInTri(PNT3D p, STLTRI* tri, double tol);
 
-// smf add 2022/08/10
+// 2022/08/10 smf add: 测试接口
 int getCellPosition(int &i, int &j, int &k);// 输入测试cell的空间位置
 
 // 找到测试的cell的指针
@@ -143,7 +143,7 @@ CELL* findTestCell(CB *cb, double x, double y, double z);
 CELL* findTestCell(CB *cb, int iBlk, int iCell);
 
 void drawTestCube(CB *cb, int i, int j, int k);// 绘制测试cell的包围盒
-int drawTestCell(CELL *iCell, CB* cb);// 绘制测试cell
+void drawTestCell(CELL *iCell, CB* cb); // 绘制测试cell
 
 ////////////////////////////////////////////////////////////////
 
