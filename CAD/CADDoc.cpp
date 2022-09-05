@@ -1436,7 +1436,7 @@ void CCADDoc::Print(PRG* pPrg)
 			zb3 = zb2Create(&box, w, m_h, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
 			zb2SliceCB(zb3, (CB*)stl->cb, pPrg) ;
 
-			outPutSline2((ZB2*)stl->zb3); //  2022/08/17 smf add: 输出Sline2的信息
+			outPutSline2((ZB2*)zb3); //  2022/08/17 smf add: 输出Sline2的信息
 
 			if( stl->zb3 )
 				zb2Free((ZB2*)(stl->zb3)) ;
