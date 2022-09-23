@@ -669,8 +669,11 @@ void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 			zb2Cut(zb2, z) ; // nt add 2017/5/30
 		// nt add 2021/6/7
 		zb2 = (ZB2*)(stl->zb3) ;
-		if( zb2 )
-			zb2Cut(zb2, z) ;
+		if (zb2)
+		{
+			//zb2SliceCBOnZ(zb2, (CB*)stl->cb, z);
+			zb2Cut(zb2, z);
+		}
 
 		// end
 	}
@@ -1434,9 +1437,9 @@ void CCADDoc::Print(PRG* pPrg)
 			box.min[1] -= r1 ;
 			box.min[2] -= r1 ;
 			zb3 = zb2Create(&box, w, m_h, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
-			zb2SliceCB(zb3, (CB*)stl->cb, pPrg) ;
-
-			outPutSline2((ZB2*)zb3); //  2022/08/17 smf add: 输出Sline2的信息
+			FindErrorCB((CB*)(stl->cb));
+			//OutPutCB((CB*)(stl->cb), m_h * 2185);
+			//OutPutSline2((ZB2*)zb3); //  2022/08/17 smf add: 输出Sline2的信息
 
 			if( stl->zb3 )
 				zb2Free((ZB2*)(stl->zb3)) ;
@@ -2485,7 +2488,7 @@ BOOL CCADDoc::OnOpenDocument(LPCTSTR lpszPathName)
 }
 
 //  2022/08/17 smf add: 输出Sline2的信息
-void CCADDoc::outPutSline2(ZB2 * zb2)
+void CCADDoc::OutPutSline2(ZB2 * zb2)
 {
 	CString filePath;
 	efpGet(filePath); // 运行文件目录
@@ -2506,6 +2509,145 @@ void CCADDoc::outPutSline2(ZB2 * zb2)
 				{
 					fprintf(fp, "[%d, %d]\t%d\t%d\t%f\t%f\n", ii, jj, kk, segment->facetId, segment->z1, segment->z2);
 					segment = segment->next;
+				}
+			}
+		}
+		fclose(fp);
+	}
+	fp = nullptr;
+}
+
+void CCADDoc::OutPutCB(CB * cb, float z)
+{
+	CString filePath;
+	efpGet(filePath); // 运行文件目录
+	filePath += _T("\\..\\Works\\OutPutCB.txt");
+	FILE* fp = nullptr;
+	_tfopen_s(&fp, filePath.GetBuffer(0), _T("w"));
+	if (fp)
+	{
+		double center[3] = { 0., 0., 0. }; 
+		CSEGM* segm = NULL;
+		CELL *cell = NULL;
+		CLINE* line = NULL;
+		int kk = (z - cb->zmin) / cb->w;
+		for (int i = 0; i < cb->nx; i++)
+		{
+			for (int j = 0; j < cb->ny; j++)
+			{
+				CSEGM * segm = cb->lines[i][j].segms;
+				line = cbGetCLine(cb, i, j);
+				if (line)
+				{
+					memcpy(center, line->p, sizeof(PNT2D));
+					segm = line->segms;
+					while (segm)
+					{
+						if (kk >= segm->k1 && kk <= segm->k2)
+						{
+							center[2] = cb->zmin + cb->w*(kk + 0.5);
+							break;
+						}
+						segm = segm->next;
+					}
+
+					cell = line->cells;
+					while (cell)
+					{
+						if (cell->k == kk)
+						{
+							int num = 0;
+							for (int ii = 0; ii < 4; ii++)
+							{
+								if (cell->flags[ii])
+								{
+									if (cell->begin[ii][0] > 375 ||
+										cell->begin[ii][1] > 375 ||
+										cell->end[ii][0] > 375 || 
+										cell->end[ii][1] > 375)
+									{
+										fprintf(fp, "第%d根杆：[%lf, %lf, %lf], [%lf, %lf, %lf]", ii, 
+											cell->begin[ii][0], cell->begin[ii][1], cell->begin[ii][2], 
+											cell->end[ii][0], cell->end[ii][1], cell->end[ii][2]);
+									}
+									num++;
+								}
+							}
+							break;
+						}
+						cell = cell->next;
+					}
+				}
+
+			}
+		}
+		fclose(fp);
+	}
+	fp = nullptr;
+}
+
+void CCADDoc::FindErrorCB(CB * cb)
+{
+	CString filePath;
+	efpGet(filePath); // 运行文件目录
+	filePath += _T("\\..\\Works\\FindErrorCB.txt");
+	FILE* fp = nullptr;
+	_tfopen_s(&fp, filePath.GetBuffer(0), _T("w"));
+	if (fp)
+	{
+		double center[3] = { 0., 0., 0. };
+		CSEGM* segm = NULL;
+		CELL *cell = NULL;
+		CLINE* line = NULL;
+		int kk = 0;
+		for (kk = 0; kk < cb->nz; kk++)
+		{
+			for (int i = 0; i < cb->nx; i++)
+			{
+				for (int j = 0; j < cb->ny; j++)
+				{
+					CSEGM * segm = cb->lines[i][j].segms;
+					line = cbGetCLine(cb, i, j);
+					if (line)
+					{
+						memcpy(center, line->p, sizeof(PNT2D));
+						segm = line->segms;
+						while (segm)
+						{
+							if (kk >= segm->k1 && kk <= segm->k2)
+							{
+								center[2] = cb->zmin + cb->w*(kk + 0.5);
+								break;
+							}
+							segm = segm->next;
+						}
+
+						cell = line->cells;
+						while (cell)
+						{
+							if (cell->k == kk)
+							{
+								int num = 0;
+								for (int ii = 0; ii < 4; ii++)
+								{
+									if (cell->flags[ii])
+									{
+										if ((cell->begin[ii][0] * cell->begin[ii][0] + cell->begin[ii][1] * cell->begin[ii][1]) > 375 * 375 ||
+											(cell->end[ii][0] * cell->end[ii][0] + cell->end[ii][1] * cell->end[ii][1]) > 375 * 375)
+										{
+											fprintf(fp, "[%d, %d, %d]\n第%d根杆：[%lf, %lf, %lf], [%lf, %lf, %lf]\n", i, j, cell->k, ii,
+												cell->begin[ii][0], cell->begin[ii][1], cell->begin[ii][2],
+												cell->end[ii][0], cell->end[ii][1], cell->end[ii][2]);
+										}
+										num++;
+									}
+								}
+								break;
+							}
+							cell = cell->next;
+						}
+					}
+
 				}
 			}
 		}

@@ -109,7 +109,7 @@ int hullCutLine(HULL * hull, PNT3D p1, PNT3D p2, PNT3D IP1, PNT3D IP2)
 		}
 		else//在平面上或一般情况
 		{
-			if (triIntLin(tri, p1, v1, tol, &InPNum, interp1, interp2) != IDNOINT)//有交点
+			if (triIntLin(tri, p1, dir, tol, &InPNum, interp1, interp2) != IDNOINT)//有交点
 			{
 				for (k = 0; k < 3; k++)//一个交点
 				{
@@ -198,7 +198,7 @@ int hullMake(HULL * hull)
 	for (i = 2; i < pn; i++)
 	{
 		s = triCalArea(hull->points[0], hull->points[1], hull->points[i]);
-		if (s > tol)
+		if (s > tol * tol)
 		{
 			swap(hull->points[2], hull->points[i]);// 确保p0, p1, p2不共线
 			fail = 0;
@@ -1340,18 +1340,18 @@ int cbDraw(CB* cb, void* pVI)
 			line = cbGetCLine(cb, i, j) ;
 			if( line )
 			{
-				//绘制连续单元
-				segm = line->segms ;
-				while(segm)
-				{
-					for( k = segm->k1 ; k <= segm->k2 ; k++ )
-					{
-						min[2] = cb->zmin+cb->w*k ;
-						max[2] = min[2]+cb->w ;
-						drawCube3(min, max) ;
-					}
-					segm = segm->next ;
-				}
+				////绘制连续单元
+				//segm = line->segms ;
+				//while(segm)
+				//{
+				//	for( k = segm->k1 ; k <= segm->k2 ; k++ )
+				//	{
+				//		min[2] = cb->zmin+cb->w*k ;
+				//		max[2] = min[2]+cb->w ;
+				//		drawCube3(min, max) ;
+				//	}
+				//	segm = segm->next ;
+				//}
 
 				//绘制单个晶胞
 				cell = line->cells;

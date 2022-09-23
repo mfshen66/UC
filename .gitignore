@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 Works/OutPutZB3.txt
+*.txt

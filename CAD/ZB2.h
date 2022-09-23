@@ -75,11 +75,13 @@ int zb2SliceTri(ZB2* zb, PNT3D A, PNT3D B, PNT3D C) ;
 int zb2SliceFacet(ZB2* zb, FACET* facet) ; 
 int zb2SliceSS(ZB2* zb, SS* ss) ; 
 int zb2Slice(ZB2* zb, STL* stl) ; // STLµÄss/scan_line intersection
-int zb2SliceCB(ZB2* zb, CB* cb, PRG* pPrg) ; // nt add 2021/6/5
+int zb2SliceCB(ZB2* zb, CB* cb, PRG* pPrg); // nt add 2021/6/5
+int zb2SliceCBOnZ(ZB2* zb, CB* cb, float z) ; // smf add 2022/9/15
 int zb2Draw(ZB2* zb, void* pVI) ; // draw lines
 int zb2Draw2(ZB2* zb, void* pVI) ; // draw points
 int zb2DrawZ(ZB2* zb, void* pVI) ; // draw points on z-plane
-int zb2Cut(ZB2* zb, float z) ; // 2022/08/16 smf modify: double to float
+int zb2Cut(ZB2* zb, float z); // 2022/08/16 smf modify: double to float
+//int zb2Cut(ZB2* zb, int k) ; // 2022/08/16 smf add
 uchar zb2GetPixel(ZB2* zb, int i, int j) ;
 ////////////////////////////////////////////////////////////////
 

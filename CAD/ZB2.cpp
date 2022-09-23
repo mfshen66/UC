@@ -614,6 +614,82 @@ int zb2SliceCB(ZB2* zb, CB* cb, PRG* pPrg)
 
 	return 1 ;
 }
+
+
+int zb2SliceCBOnZ(ZB2 * zb, CB * cb, float z)
+{
+	int i, j, I, nFacet, nBFacet;
+	int kk = (z - cb->zmin) / cb->w;
+	double dd, center[3] = { 0., 0., 0. };
+	CSEGM* segm = NULL;
+	CELL *cell = NULL;
+	CLINE* line = NULL;
+	FACET* facets[5], *Facets[5], *bfacets[5], *bFacets[5];
+
+	if (zb == NULL ||
+		cb == NULL)
+		return 0;
+
+	nFacet = facetsCell(center, cb->w, cb->r1, cb->r2, 6, facets);
+	nFacet = facetsCell(center, cb->w, cb->r1, cb->r2, 6, Facets);
+
+	for (i = 0; i < cb->nx; i++)
+	{
+		for (j = 0; j < cb->ny; j++)
+		{
+			line = cbGetCLine(cb, i, j);
+			if (line)
+			{
+				memcpy(center, line->p, sizeof(PNT2D));
+				segm = line->segms;
+				while (segm)
+				{
+					if (kk >= segm->k1 && kk <= segm->k2)
+					{
+						center[2] = cb->zmin + cb->w*(kk + 0.5);
+						facetsCopyMove(nFacet, facets, center, Facets);
+						for (I = 0; I < nFacet; I++)
+							zb2SliceFacet(zb, Facets[I]);
+						break;
+					}
+					segm = segm->next;
+				}
+
+				cell = line->cells;
+				while (cell)
+				{
+					if (cell->k == kk)
+					{
+						nBFacet = facetsBoundCell(center, cell, cb->r1, cb->r2, 6, bfacets);
+						nBFacet = facetsBoundCell(center, cell, cb->r1, cb->r2, 6, bFacets);
+						for (I = 0; I < nBFacet; I++)
+							zb2SliceFacet(zb, bFacets[I]);
+						break;
+					}
+					cell = cell->next;
+				}
+			}
+
+		}
+	}
+
+	for (I = 0; I < nFacet; I++)
+	{
+		facetFree(facets[I]);
+		facets[I] = NULL; // 2022/08/17 smf add
+		facetFree(Facets[I]);
+		Facets[I] = NULL; // 2022/08/17 smf add
+	}
+	for (I = 0; I < nBFacet; I++)
+	{
+		facetFree(bfacets[I]); // 2022/08/17 smf add
+		bfacets[I] = NULL; // 2022/08/17 smf add
+		facetFree(bFacets[I]); // 2022/08/17 smf add
+		bFacets[I] = NULL; // 2022/08/17 smf add
+	}
+
+	return 1;
+}
 //--------------------------------------------------------------
 int zb2Draw(ZB2* zb, void* pVI)
 {
@@ -737,6 +813,12 @@ int zb2Cut(ZB2* zb, float z) // 2022/08/16 smf modify: double to float
 
 	return 1 ;
 }
+
+//int zb2Cut(ZB2 * zb, int k)
+//{
+//	float z = zb->zmin + k * zb->h;
+//	return zb2Cut(zb, z);
+//}
 
 uchar zb2GetPixel(ZB2* zb, int i, int j)
 {
