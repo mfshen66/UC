@@ -659,6 +659,7 @@ double CCADDoc::GetMeanZ()
 // nt add 2017/5/27
 void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 {
+
 	for( STL* stl = m_stls ; stl ; stl = stl->next )
 	{
 		ZB* zb = (ZB*)(stl->zb) ;
@@ -667,12 +668,25 @@ void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 		ZB2* zb2 = (ZB2*)(stl->zb2) ; // nt add 2017/5/30
 		if( zb2 ) // nt add 2017/5/30
 			zb2Cut(zb2, z) ; // nt add 2017/5/30
+		
 		// nt add 2021/6/7
-		zb2 = (ZB2*)(stl->zb3) ;
-		if (zb2)
+		if (stl->cb)
 		{
-			//zb2SliceCBOnZ(zb2, (CB*)stl->cb, z);
-			zb2Cut(zb2, z);
+			double r1 = ((CB*)stl->cb)->r1;
+			double w = 0.09;
+			ZB2* zb3 = NULL;
+			BOX3D box;
+			memcpy(&box, &stl->box, sizeof(BOX3D));
+			box.min[0] -= r1;
+			box.min[1] -= r1;
+			box.min[2] -= r1;
+			if (stl->zb3)
+				zb2Free((ZB2*)(stl->zb3));
+			zb3 = zb2Create(&box, w, m_h, 1.e-6, 1.e-11); // 2022/08/17 smf modify: 1.e-8 to 1.e-6
+			zb2SliceCBOnZ(zb3, (CB*)stl->cb, z);
+			stl->zb3 = zb3;
+			zb2Cut(zb3, z);
+			zb3 = NULL;
 		}
 
 		// end
@@ -1385,7 +1399,6 @@ void CCADDoc::Print(PRG* pPrg)
 	BOX3D box ;
 	STL* stl = NULL ;
 	CB* cb = NULL ;
-	ZB2* zb3 = NULL ;
 
 	n = GetNumOfSTL() ;
 	if( pPrg == NULL ||
@@ -1433,18 +1446,18 @@ void CCADDoc::Print(PRG* pPrg)
 
 			if( stl->cb == NULL )
 				continue ;
-			box.min[0] -= r1 ;
-			box.min[1] -= r1 ;
-			box.min[2] -= r1 ;
-			zb3 = zb2Create(&box, w, m_h, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
-			FindErrorCB((CB*)(stl->cb));
+
+			//ZB2* zb3 = NULL;
+			//zb3 = zb2Create(&box, w, m_h, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
+			//if (stl->zb3)
+			//	zb2Free((ZB2*)(stl->zb3));
+			//stl->zb3 = zb3;
+			//zb3 = NULL;
+
+			//FindErrorCB((CB*)(stl->cb));
 			//OutPutCB((CB*)(stl->cb), m_h * 2185);
 			//OutPutSline2((ZB2*)zb3); //  2022/08/17 smf add: 输出Sline2的信息
 
-			if( stl->zb3 )
-				zb2Free((ZB2*)(stl->zb3)) ;
-			stl->zb3 = zb3 ;
-			zb3 = NULL ;
 
 			(pPrg->i)++ ;
 		}
