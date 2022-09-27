@@ -89,7 +89,6 @@ int hullCutLine(HULL * hull, PNT3D p1, PNT3D p2, PNT3D IP1, PNT3D IP2)
 	PNT3D interp1, interp2;
 	double tol = hull->tol;
 	int InPNum = 0;
-	mathGetVec(p1, p2, v1);
 	PNT3D points[MAXFACENUM * 2];
 	int pn = 0, ipn;
 	if (mathGetVecUnit(p1, p2, dir) == 0)
