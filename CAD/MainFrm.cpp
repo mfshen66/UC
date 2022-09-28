@@ -351,6 +351,7 @@ void CMainFrame::OnSlider1()
 		cadPromptStr(_T("无STL模型!")) ;
 		return ;
 	}
+
 	float z = (float)(pDoc->m_iLayer*pDoc->GetZMax()/pDoc->m_nLayer) ; // 2022/08/16 smf modify: 强转double to float
 	pDoc->CutAll(z) ;
 	pView->m_drawSection = 1 ;

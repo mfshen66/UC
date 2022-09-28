@@ -672,8 +672,8 @@ void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 		// nt add 2021/6/7
 		if (stl->cb)
 		{
+			double w = m_parameter.L / m_parameter.PL; // 2022/09/28 smf add
 			double r1 = ((CB*)stl->cb)->r1;
-			double w = 0.09;
 			ZB2* zb3 = NULL;
 			BOX3D box;
 			memcpy(&box, &stl->box, sizeof(BOX3D));
@@ -1395,7 +1395,7 @@ void CCADDoc::Print(PRG* pPrg)
 }*/
 {
 	int i, n ;
-	double w, cell_w = 2., r1 = 0.1, r2 = 0.2 ;
+	double cell_w = 2., r1 = 0.1, r2 = 0.2 ;
 	BOX3D box ;
 	STL* stl = NULL ;
 	CB* cb = NULL ;
@@ -1406,8 +1406,6 @@ void CCADDoc::Print(PRG* pPrg)
 		return ;
 	prgInit(pPrg, n) ;
 
-	//w = m_parameter.L/m_parameter.PL ;
-	w = 0.1;
 	if( m_stls )
 	{
 		double s = 0., ww, hh ;

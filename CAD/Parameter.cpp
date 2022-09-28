@@ -26,14 +26,15 @@ void parameterInit(PARAMETER* parameter)
 	// 材料名称含型号
 	_tcscpy_s(parameter->material, 64, _T("Al2O3-01")) ;
 
+	// 2022/09/28 smf modify: 工作台及分辨率范围
 	// x、y、z方向上的工作台的范围
-	parameter->L = 256. ; // mm
-	parameter->W = 160. ; // mm
-	parameter->H = 200. ; // mm
+	parameter->L = 1000. ; // mm
+	parameter->W = 1000. ; // mm
+	parameter->H = 1000. ; // mm
 
 	// 分辨率
-	parameter->PL = 1280 ; // pixel
-	parameter->PW = 800 ; // pixel
+	parameter->PL = 10000 ; // pixel
+	parameter->PW = 10000 ; // pixel
 
 	parameter->P0 = 0 ;
 	parameter->Dx = 1 ;
