@@ -1762,6 +1762,7 @@ int triInt(PNT3D A,
 }
 //--------------------------------------------------------------
 // smf add 2023/02/21
+// 共面线段的交点计算
 int mathSegmIntSegmInFace(PNT3D iBegin1, PNT3D iEnd1, PNT3D iBegin2, PNT3D iEnd2, double iTol, PNT3D oIntPoint)
 {
 	VEC3D v1, v2, v_b1_b2;
