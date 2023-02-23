@@ -163,6 +163,8 @@ GP_API int regDrawQuas(int (*drawQuas)(int np, double (*ps)[3], double (*ns)[3],
 #define MIN_ANG	1.e-11
 #define MIN_RAD 1.e-3 // 1.e-6
 
+#define TOL_ANGLE 1e-6
+
 #define PI1 3.1415926535897932 // PI
 #define PI2 6.2831853071795864 // PI*2
 #define PI1_2 1.5707963267948966 // PI/2

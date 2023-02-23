@@ -117,4 +117,10 @@ int prgGetPercent(PRG* pPrg) ;
 void prgFinish(PRG* pPrg) ;
 //--------------------------------------------------------------
 int triInt(PNT3D V0, PNT3D V1, PNT3D V2, PNT3D U0, PNT3D U1, PNT3D U2) ;
+//--------------------------------------------------------------
+// smf add 2023/02/21
+// 两共面的线段求交
+int mathSegmIntSegmInFace(PNT3D iBegin1, PNT3D iEnd1, PNT3D iBegin2, PNT3D iEnd2, double iTol, PNT3D oIntPoint);
+
+double mathDet22(double a11, double a12, double a21, double a22); // |A|
 ///////////////////////////////////////////////////////////////

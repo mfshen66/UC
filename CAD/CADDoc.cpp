@@ -1318,81 +1318,6 @@ void CCADDoc::ClearSupport()
 
 // nt modify 2017/9/9 add progress
 void CCADDoc::Print(PRG* pPrg)
-/*{
-	int i, n ;
-	double w, ext ;
-	BOX3D box ;
-	STL* stl = NULL ;
-	ZB* zb = NULL ;
-	ZB2* zb2 = NULL ;
-
-	// nt add 2017/9/9
-	n = GetNumOfSTL() ;
-	if( pPrg == NULL ||
-		n < 1 )
-		return ;
-	prgInit(pPrg, n) ;
-
-	w = m_parameter.L/m_parameter.PL ;
-	ext = ceil((m_ssp.d+m_ssp.r1)/w)*w ;
-	if( m_stls )
-	{
-		// nt add 2017/9/9 initialize PRG
-		double s = 0., ww, hh ;
-		i = 0 ;
-		for( stl = m_stls ; stl ; stl = stl->next )
-		{
-			ww = stl->box.max[0]-stl->box.min[0] ;
-			hh = stl->box.max[1]-stl->box.min[1] ;
-			pPrg->ws[i] = fabs(ww*hh) ;
-			s += pPrg->ws[i] ;
-			i++ ;
-		}
-		if( s < MIN_DBL )
-			return ; // error
-		for( i = 0 ; i < n ; i++ )
-			pPrg->ws[i] /= s ;
-		
-		for( stl = m_stls ; stl ; stl = stl->next )
-		{
-			stlGetBox(stl, &box) ;
-			zb = zbCreate(&box, 
-				          w, // 0.1, 
-				          m_h, // 0.1, 
-				          1.e-8, 
-				          1.e-11) ;
-			zbSlice(zb, stl, pPrg) ;
-			if( stl->zb )
-				zbFree((ZB*)(stl->zb)) ;
-			stl->zb = zb ;
-			zb = NULL ;
-
-			// nt add 2017/5/29
-			if( stl->ss == NULL )
-				continue ;
-			box.min[0] -= ext ;
-			box.min[1] -= ext ;
-			box.max[0] += ext ;
-			box.max[1] += ext ;
-			zb2 = zb2Create(&box, 
-				            w, // 0.1, 
-				            m_h, // 0.1, 
-				            1.e-8, 
-				            1.e-11) ;
-			zb2Slice(zb2, stl) ;
-			if( stl->zb2 )
-				zb2Free((ZB2*)(stl->zb2)) ;
-			stl->zb2 = zb2 ;
-			zb2 = NULL ;
-
-			(pPrg->i)++ ; // nt add 2017/9/10
-		}
-
-		prgFinish(pPrg) ; // nt add 2017/9/10
-	}
-
-	return ;
-}*/
 {
 	int i, n ;
 	double cell_w = 2., r1 = 0.1, r2 = 0.2 ;
@@ -1436,7 +1361,7 @@ void CCADDoc::Print(PRG* pPrg)
 			box.max[1] += r1 ;
 			box.max[2] += r1 ;
 			cb = cbCreate(&box, cell_w, r1, r2, 1.e-6, 1.e-11) ; // 2022/08/17 smf modify: 1.e-8 to 1.e-6
-			cbFill( cb, stl, pPrg, m_stls ) ;
+			cbFill( cb, stl, pPrg, m_stls , cell_w) ;
 			if( stl->cb )
 				cbFree((CB*)(stl->cb)) ;
 			stl->cb = cb ;
@@ -3438,42 +3363,6 @@ void CCADDoc::OnPrintSet()
 
 void CCADDoc::OnPrint()
 {
-	/*int i, n ;
-	//double stl_vol, dsc_vol ;
-	BOX3D box ;
-	STL* stl = NULL ;
-	CSet* pSet = new CSet() ;
-	ZB* zb = NULL ;
-
-	InitCmd(ID_PRINT) ;
-
-	n = GetAllOfSelectedSTL(pSet) ;
-	for( i = 0 ; i < n ; i++ )
-	{
-		stl = (STL*)pSet->GetObj(i) ;
-		if( stl )
-		{
-			stlGetBox(stl, &box) ;
-			zb = zbCreate(&box, 
-				          0.1, 
-				          0.1, 
-				          1.e-8, 
-				          1.e-11) ;
-			zbSlice(zb, stl) ;
-			//dsc_vol = zbCalVol(zb) ;
-			//stl_vol = stlCalVol(stl) ;
-			//zbCut(zb, 0.5*(box.min[2]+box.max[2])) ;
-		}
-		break ;
-	}
-
-	if( m_zb )
-		zbFree(m_zb) ;
-	m_zb = zb ;
-	delete pSet ;
-
-	return;*/
-
 	InitCmd(ID_PRINT) ;
 
 	CollisionDetect() ; // nt add 2017/5/21

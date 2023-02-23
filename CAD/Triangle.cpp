@@ -90,9 +90,10 @@ int triIntLin(FACE* pT,
 	{
 		if (mathVProductUnit(pT->normal, dir, v) != ERSUCSS)
 			return IDNOINT;
-		dA = mathDistPntPln(pT->A, begin, v); // A to perpendicular plane
-		dB = mathDistPntPln(pT->B, begin, v); // B to per_planeular plane
-		dC = mathDistPntPln(pT->C, begin, v); // C to per_planeular plane
+		mathUniVec(v, tol);
+		dA = mathDistPntPlnSide(pT->A, begin, v); // A to perpendicular plane
+		dB = mathDistPntPlnSide(pT->B, begin, v); // B to per_planeular plane
+		dC = mathDistPntPlnSide(pT->C, begin, v); // C to per_planeular plane
 		if ((dA > tol && dB > tol && dC > tol) || // 排除同侧的情况
 			(dA < -tol && dB < -tol && dC < -tol))
 			return IDNOINT;
@@ -182,6 +183,78 @@ int triIntLin(FACE* pT,
 				(*pn)--;
 			return (*pn) > 0 ? IDINT : IDNOINT;
 		}
+	}
+}
+
+int triIntSegm(FACE * pT, PNT3D begin, PNT3D end, double tol, int & pn, PNT3D intpnt1, PNT3D intpnt2)
+{
+	pn = 0;
+	int size_of_pnt = sizeof(PNT3D);
+	//if (triChkPnt2(pT, begin, tol) == IDIN)
+	//{
+	//	memcpy(intpnt1, begin, size_of_pnt);
+	//	pn++;
+	//}
+	//if (triChkPnt2(pT, end, tol) == IDIN)
+	//{
+	//	memcpy(intpnt2, end, size_of_pnt);
+	//	pn++;
+	//}
+
+	VEC3D v;
+	mathGetVec(begin, end, v);
+
+	double d_begin, d_end;
+	d_begin = mathDistPntPlnSide(begin, pT->A, pT->normal);
+	d_end = mathDistPntPlnSide(end, pT->A, pT->normal);
+
+	if (d_begin * d_end > tol)
+	{
+		// 线段在三角形同侧，无交
+		pn = 0;
+		return (pn > 0) ? IDINT : IDNOINT;
+	}
+	else if (fabs(d_begin * d_end) <= tol) // 线段在三角形上
+	{
+		PNT3D p_tmp[3];
+		bool is_int[3] = { 0, 0, 0 };
+		is_int[0] = mathSegmIntSegmInFace(begin, end, pT->A, pT->B, tol, p_tmp[0]);
+		is_int[1] = mathSegmIntSegmInFace(begin, end, pT->B, pT->C, tol, p_tmp[1]);
+		is_int[2] = mathSegmIntSegmInFace(begin, end, pT->A, pT->C, tol, p_tmp[2]);
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (is_int[i])
+			{
+				if (pn == 0)
+				{
+					memcpy(intpnt1, p_tmp[i], size_of_pnt);
+					pn++;
+				}
+				else
+				{
+					if (!mathIsCoinsidentPoint(intpnt1, p_tmp[i], tol))
+					{
+						memcpy(intpnt2, p_tmp[i], size_of_pnt);
+						pn++;
+						return (pn > 0) ? IDINT : IDNOINT;
+					}
+				}
+			}
+		}
+		return (pn > 0) ? IDINT : IDNOINT;
+	}
+	else //	在异侧
+	{
+		double w1 = fabs(d_begin);
+		double w2 = fabs(d_end);
+		double sum_d = w1 + w2;
+		for (int i = 0; i < 3; i++)
+		{
+			intpnt1[i] = w1 / sum_d * v[i];
+		}
+		pn = 1;
+		return (pn > 0) ? IDINT : IDNOINT;
 	}
 }
 
@@ -299,19 +372,15 @@ int triChkPnt(FACE *pT, PNT3D p, double tol)
 
 int triChkPnt2(FACE * pT, PNT3D p, double tol)
 {
-	if (pT && p)
-	{
-		double s, s1, s2, s3;
-		s = triCalArea(pT->A, pT->B, pT->C);
-		s1 = triCalArea(p, pT->A, pT->B);
-		s2 = triCalArea(p, pT->B, pT->C);
-		s3 = triCalArea(p, pT->C, pT->A);
-		if (fabs(s - s1 - s2 - s3) < tol)
-			return IDIN;
-		else
-			return IDOUT;
-	}
-	return IDIN;
+	double s, s1, s2, s3;
+	s = triCalArea(pT->A, pT->B, pT->C);
+	s1 = triCalArea(p, pT->A, pT->B);
+	s2 = triCalArea(p, pT->B, pT->C);
+	s3 = triCalArea(p, pT->C, pT->A);
+	if (fabs(s - s1 - s2 - s3) < tol)
+		return IDIN;
+	else
+		return IDOUT;
 }
 
 int boxChkPnt(BOX3D * box, PNT3D p, double tol)
@@ -351,4 +420,13 @@ void mathComp3doubles(double a, double b, double c, double & min, double & max)
 	if (c < min)
 		min = c;
 	return;
+}
+
+bool mathIsCoinsidentPoint(PNT3D iP1, PNT3D iP2, double iTol)
+{
+	if (mathDist(iP1, iP2) <= iTol)
+	{
+		return true;
+	}
+	return false;
 }

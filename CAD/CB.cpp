@@ -108,9 +108,19 @@ int hullCutLine(HULL * hull, PNT3D p1, PNT3D p2, PNT3D IP1, PNT3D IP2)
 		}
 		else//在平面上或一般情况
 		{
-			if (triIntLin(tri, p1, dir, tol, &InPNum, interp1, interp2) != IDNOINT)//有交点
+			//if (triChkPnt2(tri, p1, tol) == IDIN)
+			//{
+			//	memcpy(points[pn], p1, sizeof(PNT3D));
+			//	pn++;
+			//}
+			//if (triChkPnt2(tri, p2, tol) == IDIN)
+			//{
+			//	memcpy(points[pn], p2, sizeof(PNT3D));
+			//	pn++;
+			//}
+			if (triIntSegm(tri, p1, p2, tol, InPNum, interp1, interp2) != IDNOINT)//有交点
 			{
-				for (k = 0; k < 3; k++)//一个交点
+				for (k = 0; k < 3; k++) // 一个交点
 				{
 					points[pn][k] = interp1[k];
 				}
@@ -1313,6 +1323,22 @@ int cbFill(CB* cb, STL* stl, PRG* pPrg, STL* m_stls, double w)
 		hullFree(hull1);
 		hullFree(hull2);
 
+		// 释放x, y, z 方向的buffer
+		if (xy)
+		{
+			zbFree(xy);
+			xy = nullptr;
+		}
+		if (zy)
+		{
+			zbFree(zy);
+			zy = nullptr;
+		}
+		if (xz)
+		{
+			zbFree(xz);
+			xz = nullptr;
+		}
 		return 1;
 	}
 	return 0;
