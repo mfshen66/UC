@@ -1776,7 +1776,7 @@ int mathSegmIntSegmInFace(PNT3D iBegin1, PNT3D iEnd1, PNT3D iBegin2, PNT3D iEnd2
 	double det_xy, det_yz, det_xz;
 
 	det_xy = mathDet22(v1[0], -v2[0], v1[1], -v2[1]);
-	det_yz = mathDet22(v1[1], -v2[2], v1[2], -v2[2]);
+	det_yz = mathDet22(v1[1], -v2[1], v1[2], -v2[2]);
 	det_xz = mathDet22(v1[0], -v2[0], v1[2], -v2[2]);
 
 	double t1 = -1000, t2 = -1000;
