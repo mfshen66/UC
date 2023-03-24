@@ -89,6 +89,7 @@ int hullCutLine(HULL * hull, PNT3D p1, PNT3D p2, PNT3D IP1, PNT3D IP2)
 	PNT3D interp1, interp2;
 	double tol = hull->tol;
 	int InPNum = 0;
+	mathGetVec(p1, p2, v1);
 	PNT3D points[MAXFACENUM * 2];
 	int pn = 0, ipn;
 	if (mathGetVecUnit(p1, p2, dir) == 0)
@@ -108,19 +109,9 @@ int hullCutLine(HULL * hull, PNT3D p1, PNT3D p2, PNT3D IP1, PNT3D IP2)
 		}
 		else//在平面上或一般情况
 		{
-			//if (triChkPnt2(tri, p1, tol) == IDIN)
-			//{
-			//	memcpy(points[pn], p1, sizeof(PNT3D));
-			//	pn++;
-			//}
-			//if (triChkPnt2(tri, p2, tol) == IDIN)
-			//{
-			//	memcpy(points[pn], p2, sizeof(PNT3D));
-			//	pn++;
-			//}
-			if (triIntSegm(tri, p1, p2, tol, InPNum, interp1, interp2) != IDNOINT)//有交点
+			if (triIntLin(tri, p1, v1, tol, &InPNum, interp1, interp2) != IDNOINT)//有交点
 			{
-				for (k = 0; k < 3; k++) // 一个交点
+				for (k = 0; k < 3; k++)//一个交点
 				{
 					points[pn][k] = interp1[k];
 				}
@@ -207,7 +198,7 @@ int hullMake(HULL * hull)
 	for (i = 2; i < pn; i++)
 	{
 		s = triCalArea(hull->points[0], hull->points[1], hull->points[i]);
-		if (s > tol * tol)
+		if (s > tol)
 		{
 			swap(hull->points[2], hull->points[i]);// 确保p0, p1, p2不共线
 			fail = 0;
@@ -1276,7 +1267,7 @@ int cbFill(CB* cb, STL* stl, PRG* pPrg, STL* m_stls, double w)
 								cell->flagC = false; // 中心点不在内部
 
 								// 找最近的STL的属性
-								proper = propertyOfClosestSTL(cPnt,  m_stls, stl);// smf modify 2022/07/18
+								proper = propertyOfClosestSTL(cPnt, m_stls, stl);// smf modify 2022/07/18
 								if (proper == CAVITY)
 								{
 									// 删除当前晶胞
@@ -1323,22 +1314,6 @@ int cbFill(CB* cb, STL* stl, PRG* pPrg, STL* m_stls, double w)
 		hullFree(hull1);
 		hullFree(hull2);
 
-		// 释放x, y, z 方向的buffer
-		if (xy)
-		{
-			zbFree(xy);
-			xy = nullptr;
-		}
-		if (zy)
-		{
-			zbFree(zy);
-			zy = nullptr;
-		}
-		if (xz)
-		{
-			zbFree(xz);
-			xz = nullptr;
-		}
 		return 1;
 	}
 	return 0;
@@ -1396,6 +1371,7 @@ int cbDraw(CB* cb, void* pVI)
 	}
 
 	// smf add 2022/08/10
+	// 绘制测试晶胞
 	i = -1;
 	j = -1;
 	k = -1;
@@ -1645,6 +1621,7 @@ int getCellPosition(int &i, int &j, int &k)
 			fscanf(fp, "%d %d %d", &i, &j, &k);
 		//}
 		fclose(fp);
+		fp = nullptr;
 		if (i >= 0 && j >= 0 && k >= 0)
 			return 1;
 		AfxMessageBox(L"TestCell输入错误！");
@@ -1750,7 +1727,7 @@ void drawTestCube(CB * cb, int i, int j, int k)
 	glEnd();
 }
 
-void drawTestCell(CELL * iCell, CB* cb)
+int drawTestCell(CELL * iCell, CB* cb)
 {
 	// 画杆
 	glLineWidth(6.f);
@@ -1773,6 +1750,7 @@ void drawTestCell(CELL * iCell, CB* cb)
 	int k = iCell->k;
 	// 画外包络
 	drawTestCube(cb, i, j, k);
+	return 0;
 }
 
 

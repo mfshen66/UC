@@ -90,6 +90,36 @@ void cellblkEmpty(CELLBLK* blk) ;
 //--------------------------------------------------------------
 #define CB_MAX_BLK 100000
 
+/*杆截面形状*/
+enum CrossSectionType
+{
+	kCircle = 0,		// 圆
+	kTriangle = +3,	// 正三角形
+	kSquare = +4,	// 正方形
+	kPentagon = +5,	// 正五边形
+	kHexagon = +6,	// 正六边形
+	kOctagon = +8	//正八边形
+};
+
+/*晶格单元的类型*/
+enum CellType
+{
+	kBiTriangle,
+	kTriDiametral,
+	kTriDiametralChevron,
+	kQuadDiametral,
+	kQuadDiametralLine,
+	kQuadDiametralCross,
+	kDodecahedron,
+	kStar,
+	kHexStar,
+	kPseudoSierpinski,
+	kHexVase,
+	kHexVaseModCubeplex,
+	kOctapeak,
+	kOctahedroid
+};
+
 typedef struct _cb CB ; // cell-buffer模型
 struct _cb
 {
@@ -114,6 +144,8 @@ struct _cb
 	CLINE** lines ; // 中心xy坐标相同的CELL组成一条SLINE3
 	double r1 ; // 杆的半径
 	double r2 ; // 中心球的半径
+	CrossSectionType shape;
+	CellType type;
 } ;
 
 CB* cbCreate(BOX3D* box, double w, double r1, double r2, double tol, double ang) ;
@@ -143,7 +175,7 @@ CELL* findTestCell(CB *cb, double x, double y, double z);
 CELL* findTestCell(CB *cb, int iBlk, int iCell);
 
 void drawTestCube(CB *cb, int i, int j, int k);// 绘制测试cell的包围盒
-void drawTestCell(CELL *iCell, CB* cb); // 绘制测试cell
+int drawTestCell(CELL *iCell, CB* cb); // 绘制测试cell
 
 ////////////////////////////////////////////////////////////////
 

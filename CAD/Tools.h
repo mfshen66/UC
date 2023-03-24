@@ -1,12 +1,11 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////
-typedef unsigned char CELLTYPE;
 typedef struct _cell CELL; // unit cell
 struct _cell
 {
 	CELL* next;
-	CELLTYPE type; // 8+12+6=26
+	unsigned char type; // 8+12+6=26
 	int k;
 	PNT3D begin[4];		//杆的起点
 	PNT3D end[4];		//杆的终点

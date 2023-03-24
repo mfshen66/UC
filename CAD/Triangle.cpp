@@ -90,10 +90,9 @@ int triIntLin(FACE* pT,
 	{
 		if (mathVProductUnit(pT->normal, dir, v) != ERSUCSS)
 			return IDNOINT;
-		mathUniVec(v, tol);
-		dA = mathDistPntPlnSide(pT->A, begin, v); // A to perpendicular plane
-		dB = mathDistPntPlnSide(pT->B, begin, v); // B to per_planeular plane
-		dC = mathDistPntPlnSide(pT->C, begin, v); // C to per_planeular plane
+		dA = mathDistPntPln(pT->A, begin, v); // A to perpendicular plane
+		dB = mathDistPntPln(pT->B, begin, v); // B to per_planeular plane
+		dC = mathDistPntPln(pT->C, begin, v); // C to per_planeular plane
 		if ((dA > tol && dB > tol && dC > tol) || // 排除同侧的情况
 			(dA < -tol && dB < -tol && dC < -tol))
 			return IDNOINT;
@@ -251,7 +250,7 @@ int triIntSegm(FACE * pT, PNT3D begin, PNT3D end, double tol, int & pn, PNT3D in
 		double sum_d = w1 + w2;
 		for (int i = 0; i < 3; i++)
 		{
-			intpnt1[i] = w1 / sum_d * v[i];
+			intpnt1[i] = begin[i] + w1 / sum_d * v[i];
 		}
 		pn = 1;
 		return (pn > 0) ? IDINT : IDNOINT;

@@ -284,9 +284,6 @@
     <ClCompile Include="LANSAVEBOX.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CB.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="vector.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -294,6 +291,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CPropertyDefineDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CB.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
