@@ -104,12 +104,12 @@ enum CrossSectionType
 /*晶格单元的类型*/
 enum CellType
 {
+	kQuadDiametral = 0,
+	kQuadDiametralLine,
+	kQuadDiametralCross,
 	kBiTriangle,
 	kTriDiametral,
 	kTriDiametralChevron,
-	kQuadDiametral,
-	kQuadDiametralLine,
-	kQuadDiametralCross,
 	kDodecahedron,
 	kStar,
 	kHexStar,
@@ -117,8 +117,11 @@ enum CellType
 	kHexVase,
 	kHexVaseModCubeplex,
 	kOctapeak,
-	kOctahedroid
+	kOctahedroid,
+	kUnknown = +999
 };
+
+CString GetCellTypeByIndex(CellType iType);
 
 typedef struct _cb CB ; // cell-buffer模型
 struct _cb
@@ -175,7 +178,7 @@ CELL* findTestCell(CB *cb, double x, double y, double z);
 CELL* findTestCell(CB *cb, int iBlk, int iCell);
 
 void drawTestCube(CB *cb, int i, int j, int k);// 绘制测试cell的包围盒
-int drawTestCell(CELL *iCell, CB* cb); // 绘制测试cell
+int drawTestCell(CELL *iCell, CB* cb, int i, int j, int k); // 绘制测试cell
 
 ////////////////////////////////////////////////////////////////
 

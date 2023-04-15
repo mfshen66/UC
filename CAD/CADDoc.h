@@ -120,6 +120,8 @@ public:
 	void MakeSupport(PRG* pPrg) ; // nt modify 2017/9/10
 	void ClearSupport() ;
 	void Print(PRG* pPrg) ; // nt modify 2017/9/9
+	void CBFill(int iType, double iLength, double iWidth, double iHeight, 
+				int iShape, double iRadiasE, double iRadiasV, int iRemoveOption, PRG* pPrg);
 	void Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm) ; // output printing file(*.p_f) nt add 2017/5/14
 	void CollisionDetect() ; // nt add 2017/5/21
 	void CollisionDetect2(PRG* pPrg) ; // nt add 2017/10/1
@@ -184,6 +186,7 @@ public:
 	afx_msg void OnHelpSupport();
 	afx_msg void OnHelpFeedback() ;
 	afx_msg void OnButtonDef();
+	afx_msg void OnButtonCBFill();
 	//afx_msg void OnComboDef();
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
@@ -191,8 +194,13 @@ public:
 	static void OutPutSline2(ZB2 *zb2); // 2022/08/17 smf add: 输出Sline2的信息
 	static void OutPutCB(CB *cb, float z); // 2022/09/16 smf add: 输出CB的信息
 	static void FindErrorCB(CB *cb); // 2022/09/16 smf add: 输出CB的信息
+	static bool CCADDoc::saveBmp(CString& bmpName, unsigned char * imgBuf, int width, int height, int biBitCount, RGBQUAD * pColorTable);
 };
 //--------------------------------------------------------------
 // nt add 2017/5/14
 CCADDoc* cadGetDoc() ;
+int bmp4Save(CString& fileName,
+	int nWidth,
+	int nHeight,
+	void* bits);
 

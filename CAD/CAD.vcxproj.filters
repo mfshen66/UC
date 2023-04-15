@@ -162,6 +162,9 @@
     <ClInclude Include="CPropertyDefineDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CBFillDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CAD.cpp">
@@ -294,6 +297,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CB.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CBFillDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

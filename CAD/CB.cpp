@@ -532,6 +532,60 @@ void clineAddCell(CLINE* line, CELL* cell)
 
 	return ;
 }
+CString GetCellTypeByIndex(CellType iType)
+{
+	CString str = _T("");
+	switch (iType)
+	{
+	case kQuadDiametral:
+		str = _T("QuadDiametral");
+		break;
+	case kQuadDiametralLine:
+		str = _T("QuadDiametralLine");
+		break;
+	case kQuadDiametralCross:
+		str = _T("QuadDiametralCross");
+		break;
+	case kBiTriangle:
+		str = _T("BiTriangle");
+		break;
+	case kTriDiametral:
+		str = _T("TriDiametral");
+		break;
+	case kTriDiametralChevron:
+		str = _T("TriDiametralChevron");
+		break;
+	case kDodecahedron:
+		str = _T("Dodecahedron");
+		break;
+	case kStar:
+		str = _T("Star");
+		break;
+	case kHexStar:
+		str = _T("HexStar");
+		break;
+	case kPseudoSierpinski:
+		str = _T("PseudoSierpinski");
+		break;
+	case kHexVase:
+		str = _T("HexVase");
+		break;
+	case kHexVaseModCubeplex:
+		str = _T("HexVaseModCubeplex");
+		break;
+	case kOctapeak:
+		str = _T("Octapeak");
+		break;
+	case kOctahedroid:
+		str = _T("Octahedroid");
+		break;
+	case kUnknown:
+	default:
+		str = _T("Unknown");
+		break;
+	}
+	return str;
+}
 //==============================================================
 // w : cellµÄ±ß³¤
 // r1 : ¸ÉµÄ°ë¾¶
@@ -1327,6 +1381,7 @@ int cbDraw(CB* cb, void* pVI)
 	CLINE* line = NULL ;
 	CELL *cell = NULL;
 
+	glBegin(GL_LINE);
 	glLineWidth(1.f) ;
 	glColor3ub(0, 0, 0) ;
 	for( i = 0 ; i < cb->nx ; i++ )
@@ -1369,19 +1424,19 @@ int cbDraw(CB* cb, void* pVI)
 			}
 		}
 	}
-
+	glEnd();
 	// smf add 2022/08/10
 	// »æÖÆ²âÊÔ¾§°û
-	i = -1;
-	j = -1;
-	k = -1;
-	if ( getCellPosition(i, j, k) )
-	{
-		if (cell = findTestCell(cb, i, j, k))
-		{
-			drawTestCell(cell, cb);
-		}
-	}
+	//i = -1;
+	//j = -1;
+	//k = -1;
+	//if ( getCellPosition(i, j, k) )
+	//{
+	//	if (cell = findTestCell(cb, i, j, k))
+	//	{
+	//		drawTestCell(cell, cb, i, j, k);
+	//	}
+	//}
 
 	return 1 ;
 }
@@ -1633,15 +1688,18 @@ int getCellPosition(int &i, int &j, int &k)
 
 CELL * findTestCell(CB * cb, int i, int j, int k)
 {
-	CELL *cell = nullptr;
-	for (int ii = 0; ii < cb->lines[i][j].m; ii++)
+	CLINE* line = cbGetCLine(cb, i, j);
+	CELL *cell = line->cells;
+
+	while (cell)
 	{
-		if (cb->lines[i][j].cells[ii].k == k)
+		if (cell->k == k)
 		{
-			cell = &(cb->lines[i][j].cells[ii]);
 			return cell;
 		}
+		cell = cell->next;
 	}
+
 	return nullptr;
 }
 
@@ -1684,7 +1742,7 @@ void drawTestCube(CB * cb, int i, int j, int k)
 	double min[3] = { cb->xmin + i * w, cb->ymin + j * w , cb->zmin + k * w };
 	double max[3] = { cb->xmin + (i + 1) * w, cb->ymin + (j + 1) * w , cb->zmin + (k + 1) * w };
 
-	glLineWidth(3.0f);
+	glLineWidth(2.0f);
 	glColor3f(0., 0., 1.);
 	glBegin(GL_LINES);
 
@@ -1727,27 +1785,46 @@ void drawTestCube(CB * cb, int i, int j, int k)
 	glEnd();
 }
 
-int drawTestCell(CELL * iCell, CB* cb)
+int drawTestCell(CELL * iCell, CB* cb, int i, int j, int k)
 {
 	// »­¸Ë
 	glLineWidth(6.f);
-	glColor3f(1.0, 0., 0.);
+	glColor3f(1.0, 1., 0.);
 
 	glBegin(GL_LINES);
 
-	for (int ii = 0; ii < 4; ii++)
+	//PNT3D points[4];
+	//points[0][0] = -24.938661125000003;
+	//points[0][1] = -25.000000000000000;
+	//points[0][2] = 25.000000000000000;
+
+	//points[1][0] = -24.938661125000003;
+	//points[1][1] = -25;
+	//points[1][2] = 14.567075151009291;
+
+	//points[2][0] = -24.938661125000003;
+	//points[2][1] = -35.390565761306966;
+	//points[2][2] = 25;
+
+	//points[3][0] = -35.407669193604676;
+	//points[3][1] = -25.000000000000000;
+	//points[3][2] = 25;
+
+	for (int ii = 1; ii < 4; ii++)
 	{
 		if (iCell->flags[ii])
 		{
 			glVertex3dv(iCell->begin[ii]);
 			glVertex3dv(iCell->end[ii]);
 		}
+		//glVertex3dv(points[0]);
+		//glVertex3dv(points[ii]);
 	}
 	glEnd();
 
-	int i = (int)((iCell->begin[0][0] - cb->xmin) / cb->w);
-	int j = (int)((iCell->begin[0][1] - cb->ymin) / cb->w);
-	int k = iCell->k;
+	i = (int)((iCell->begin[0][0] - cb->xmin) / cb->w);
+	j = (int)((iCell->begin[0][1] - cb->ymin) / cb->w);
+	k = iCell->k;
 	// »­Íâ°üÂç
 	drawTestCube(cb, i, j, k);
 	return 0;

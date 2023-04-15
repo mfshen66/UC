@@ -169,6 +169,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pCombox->AddItem(_T("¿ÕÇ»"), 2);
 	pCombox->AddItem(_T("ÃÉÆ¤"), 0);
 	pCombox->SetEditText(_T("Î´Ö¸¶¨"));
+
+	pPanel->Add(new CMFCRibbonButton(IDC_BUTTON_CBFILL, _T("¾§¸ñÌî³ä"), -1, -1));
+	CMFCRibbonButton* pButton = (CMFCRibbonButton*)m_wndRibbonBar.FindByID(IDC_BUTTON_CBFILL);
+
 	for (int i = 0; i < pCategory->GetPanelCount(); i++)
 	{
 		pPanel = pCategory->GetPanel(i);

@@ -35,6 +35,7 @@
 #include "CHotKey.h"
 #include "CB.h" // nt add 2021/6/4
 #include "CPropertyDefineDlg.h"
+#include "CBFillDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -73,6 +74,7 @@ BEGIN_MESSAGE_MAP(CCADDoc, CDocument)
 	ON_COMMAND(ID_HELP_SUPPORT, &CCADDoc::OnHelpSupport)
 	ON_COMMAND(ID_HELP_FEEDBACK, &CCADDoc::OnHelpFeedback)
 	ON_COMMAND(ID_BUTTON_DEF, &CCADDoc::OnButtonDef)
+	ON_COMMAND(IDC_BUTTON_CBFILL, &CCADDoc::OnButtonCBFill)
 
 	//ON_COMMAND(ID_COMBO_DEF, &CCADDoc::OnComboDef)
 	//ON_BN_CLICKED(IDOK, &CCADDoc::OnSWLOk)
@@ -686,6 +688,22 @@ void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 			zb2SliceCBOnZ(zb3, (CB*)stl->cb, z);
 			stl->zb3 = zb3;
 			zb2Cut(zb3, z);
+			
+			CString filePath;
+			efpGet(filePath); // 运行文件目录
+			filePath += _T("\\..\\Works\\Test.bmp");
+
+			RGBQUAD pColorTable[256];
+			for (int i = 0; i < 256; i++)
+			{
+				pColorTable[i].rgbBlue = i;
+				pColorTable[i].rgbGreen = i;
+				pColorTable[i].rgbRed = i;
+				pColorTable[i].rgbReserved = i;
+			}
+			saveBmp(filePath, zb3->pixels, zb3->nx, zb3->ny, 8, pColorTable);
+			//bmp4Save(filePath, zb3->nx, zb3->ny, zb3->pixels);
+
 			zb3 = NULL;
 		}
 
@@ -1391,6 +1409,68 @@ void CCADDoc::Print(PRG* pPrg)
 	return ;
 }
 
+void CCADDoc::CBFill(int iType, double iLength, double iWidth, double iHeight, 
+					 int iShape, double iRadiasE, double iRadiasV, int iRemoveOption, PRG * pPrg)
+{
+	int i, n;
+	BOX3D box;
+	STL* stl = NULL;
+	CB* cb = NULL;
+
+	n = GetNumOfSTL();
+	if (pPrg == NULL ||
+		n < 1)
+		return;
+	prgInit(pPrg, n);
+
+	if (m_stls)
+	{
+		double s = 0., ww, hh;
+		i = 0;
+		for (stl = m_stls; stl; stl = stl->next)
+		{
+			ww = stl->box.max[0] - stl->box.min[0];
+			hh = stl->box.max[1] - stl->box.min[1];
+			pPrg->ws[i] = fabs(ww*hh);
+			s += pPrg->ws[i];
+			i++;
+		}
+		if (s < MIN_DBL)
+			return; // error
+		for (i = 0; i < n; i++)
+		{
+			pPrg->ws[i] /= s;
+			pPrg->ws[i] *= 0.5;
+		}
+
+		for (stl = m_stls; stl; stl = stl->next)
+		{
+			stlGetBox(stl, &box);
+			//box.min[0] -= r1 ;
+			//box.min[1] -= r1 ;
+			//box.min[2] -= r1 ;
+			box.max[0] += iRadiasE;
+			box.max[1] += iRadiasE;
+			box.max[2] += iRadiasE;
+			cb = cbCreate(&box, iLength, iRadiasE, iRadiasV, 1.e-6, 1.e-11); // 2022/08/17 smf modify: 1.e-8 to 1.e-6
+			cbFill(cb, stl, pPrg, m_stls, iLength);
+			if (stl->cb)
+				cbFree((CB*)(stl->cb));
+			stl->cb = cb;
+			cb = NULL;
+
+			if (stl->cb == NULL)
+				continue;
+
+			(pPrg->i)++;
+		}
+
+		prgFinish(pPrg);
+	}
+
+	return;
+}
+
 COLORREF str2ColorRef(CString& color)
 {
 	if( color == _T("白色") )
@@ -1697,19 +1777,19 @@ void CCADDoc::CollisionDetect()
 	{
 		stlGetBox(stl1, &box1) ;
 		// smf 2021/12/30 注释掉
-		//if( box1.min[0] < -0.5*m_ds[0] ||
-		//	box1.max[0] > 0.5*m_ds[0] ||
-		//	box1.min[1] < -0.5*m_ds[1] ||
-		//	box1.max[1] > 0.5*m_ds[1] ||
-		//	box1.max[2]-box1.min[2]+m_ssp.h > m_ds[2] )
-		//{
-		//	m_collision = 1 ;
-		//	if (!b_mLangFlag)
-		//		cadPromptStr(_T("STL模型超出工作台范围!")) ;
-		//	else
-		//		cadPromptStr(_T("STL model is beyond the scope of the workbench!"));
-		//	return ;
-		//}
+		if( box1.min[0] < -0.5*m_ds[0] ||
+			box1.max[0] > 0.5*m_ds[0] ||
+			box1.min[1] < -0.5*m_ds[1] ||
+			box1.max[1] > 0.5*m_ds[1] ||
+			box1.max[2]-box1.min[2]+m_ssp.h > m_ds[2] )
+		{
+			m_collision = 1 ;
+			if (!b_mLangFlag)
+				cadPromptStr(_T("STL模型超出工作台范围!")) ;
+			else
+				cadPromptStr(_T("STL model is beyond the scope of the workbench!"));
+			return ;
+		}
 		for( stl2 = stl1->next ; stl2 != NULL ; stl2 = stl2->next )
 		{
 			stlGetBox(stl2, &box2) ;
@@ -3514,6 +3594,101 @@ void CCADDoc::OnButtonDef()
 
 }
 
+void CCADDoc::OnButtonCBFill()
+{
+	InitCmd(IDC_BUTTON_CBFILL);
+
+	CollisionDetect();
+
+	CBFillDlg dlg;
+	dlg.DoModal();
+
+	return;
+}
+
+bool CCADDoc::saveBmp(CString& bmpName, unsigned char * imgBuf, int width, int height, int biBitCount, RGBQUAD * pColorTable)
+{
+	//如果位图数据指针为0,则没有数据传入,函数返回
+	if (!imgBuf)
+		return 0;
+
+	//颜色表大小,以字节为单位,灰度图像颜色表为1024字节,彩色图像颜色表大小为0
+	int colorTablesize = 0;
+	if (biBitCount == 8)
+		colorTablesize = 1024;
+	//待存储图像数据每行字节数为4的倍数
+	int lineByte = (width * biBitCount / 8 + 3) / 4 * 4;
+
+	//以二进制写的方式打开文件
+	FILE *fp = nullptr;
+	_tfopen_s(&fp, bmpName.GetBuffer(0), _T("wb"));
+	if (fp == 0) return 0;
+
+	//申请位图文件头结构变量，填写文件头信息
+	BITMAPFILEHEADER fileHead;
+	fileHead.bfType = 0x4D42;//bmp类型
+
+	//bfSize是图像文件4个组成部分之和
+	fileHead.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)
+		+ colorTablesize + lineByte * height;
+	fileHead.bfReserved1 = 0;
+	fileHead.bfReserved2 = 0;
+
+	//bfOffBits是图像文件前三个部分所需空间之和
+	fileHead.bfOffBits = 54 + colorTablesize;
+
+	//写文件头进文件
+	fwrite(&fileHead, sizeof(BITMAPFILEHEADER), 1, fp);
+
+	//申请位图信息头结构变量，填写信息头信息
+	BITMAPINFOHEADER head;
+	head.biBitCount = biBitCount;
+	head.biClrImportant = 0;
+	head.biClrUsed = 0;
+	head.biCompression = 0;
+	head.biHeight = height;
+	head.biPlanes = 1;
+	head.biSize = sizeof(BITMAPINFOHEADER);
+	head.biSizeImage = lineByte * height;
+	head.biWidth = width;
+	head.biXPelsPerMeter = 0;
+	head.biYPelsPerMeter = 0;
+	//写位图信息头进内存
+	fwrite(&head, sizeof(BITMAPINFOHEADER), 1, fp);
+
+	//如果灰度图像,有颜色表,写入文件 
+	if (biBitCount == 8)
+		fwrite(pColorTable, sizeof(RGBQUAD), 256, fp);
+
+	int mod = width * biBitCount % 8;
+	uchar** pixels_buffer = new uchar*[lineByte];
+
+	for (int i = 0; i < height; i++)
+	{
+		pixels_buffer[i] = new uchar[lineByte];
+
+		memcpy(pixels_buffer[i], imgBuf + i * width, width * biBitCount / 8);
+		for (int j = lineByte - mod; j < lineByte; j++)
+		{
+			pixels_buffer[i][j] = 0;
+		}
+	}
+
+	//写位图数据进文件
+	//fwrite(imgBuf, height*lineByte, 1, fp);
+	for (int i = height - 1; i >= 0; i--)
+	{
+		fwrite(pixels_buffer[i], lineByte, 1, fp);
+		delete[]pixels_buffer[i];
+		pixels_buffer[i] = nullptr;
+	}
+	delete[]pixels_buffer;
+	pixels_buffer = nullptr;
+	//关闭文件
+	fclose(fp);
+
+	return 1;
+}
 
 //--------------------------------------------------------------
 CCADDoc* cadGetDoc()

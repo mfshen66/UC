@@ -553,37 +553,56 @@ FACET* facetCreate2(SURFACE* surface, BOX2D* boxuv, int nu, int nv)
 	facet = facetCreate((nu+1)*(nv+1), nu*nv*2, 0) ;
 	if( !facet )
 		return NULL ; // error
-	for( n = 0, i = 0 ; i <= nu ; i++ )
-	{
-		u = boxuv->min[0]+i*(boxuv->max[0]-boxuv->min[0])/nu ;
-		for( j = 0 ; j <= nv ; j++ )
-		{
-			v = boxuv->min[1]+j*(boxuv->max[1]-boxuv->min[1])/nv ;
-			facet->nodes[n].uv[0] = u ;
-			facet->nodes[n].uv[1] = v ;
-			facet->nodes[n].attrib = 0. ;
-			surfaceEvalNormal(surface,
-						      facet->nodes[n].uv[0],
-						      facet->nodes[n].uv[1],
-						      facet->nodes[n].p,
-						      facet->nodes[n].normal) ;
-			n++ ;
-		}
-	} // n = i*(nv+1)+j
 
-	for( n = 0, i = 0 ; i < nu ; i++ )
+	CString filePath;
+	efpGet(filePath); // 运行文件目录
+	filePath += _T("\\..\\Works\\OutPutFacet.txt");
+	FILE* fp = nullptr;
+	_tfopen_s(&fp, filePath.GetBuffer(0), _T("w"));
+	if (fp)
 	{
-		for( j = 0 ; j < nv ; j++, n += 2 )
+		for (n = 0, i = 0; i <= nu; i++)
 		{
-			facet->trias[n][0] = i*(nv+1)+j ;
-			facet->trias[n][1] = (i+1)*(nv+1)+j ;
-			facet->trias[n][2] = (i+1)*(nv+1)+(j+1) ;
+			u = boxuv->min[0] + i * (boxuv->max[0] - boxuv->min[0]) / nu;
+			for (j = 0; j <= nv; j++)
+			{
+				v = boxuv->min[1] + j * (boxuv->max[1] - boxuv->min[1]) / nv;
+				facet->nodes[n].uv[0] = u;
+				facet->nodes[n].uv[1] = v;
+				facet->nodes[n].attrib = 0.;
+				surfaceEvalNormal(surface,
+					facet->nodes[n].uv[0],
+					facet->nodes[n].uv[1],
+					facet->nodes[n].p,
+					facet->nodes[n].normal);
 
-			facet->trias[n+1][0] = i*(nv+1)+j ;
-			facet->trias[n+1][1] = (i+1)*(nv+1)+(j+1) ;
-			facet->trias[n+1][2] = i*(nv+1)+(j+1) ;
+				//fprintf(fp, "%d\t%lf\t%lf\t%lf\t%lf\t%lf\n", n, u, v, facet->nodes[n].p[0], facet->nodes[n].p[1], facet->nodes[n].p[2]);
+
+				n++;
+			}
+		} // n = i*(nv+1)+j
+
+		for (n = 0, i = 0; i < nu; i++)
+		{
+			for (j = 0; j < nv; j++, n += 2)
+			{
+				facet->trias[n][0] = i * (nv + 1) + j;
+				facet->trias[n][1] = (i + 1)*(nv + 1) + j;
+				facet->trias[n][2] = (i + 1)*(nv + 1) + (j + 1);
+
+				facet->trias[n + 1][0] = i * (nv + 1) + j;
+				facet->trias[n + 1][1] = (i + 1)*(nv + 1) + (j + 1);
+				facet->trias[n + 1][2] = i * (nv + 1) + (j + 1);
+
+				fprintf(fp, "%d\t%d\t%d\t%d\n%d\t%d\t%d\t%d\n", n, facet->trias[n][0], facet->trias[n][1], facet->trias[n][2], 
+					n + 1, facet->trias[n + 1][0], facet->trias[n + 1][1], facet->trias[n + 1][2]);
+			}
 		}
+
+		fclose(fp);
+		fp = nullptr;
 	}
+
 
 	return facet ;
 }

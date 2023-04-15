@@ -55,6 +55,7 @@
 #define IDD_HOTKEY                      367
 #define IDD_START                       369
 #define IDD_PROPERTY_DEFINE             375
+#define IDD_CBFILLDLG                   376
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON3                     1002
@@ -75,12 +76,14 @@
 #define IDC_BUTTON10                    1018
 #define IDC_BUTTON11                    1019
 #define IDC_BUTTON12                    1020
+#define IDC_BUTTON_CBFILL				1021
 #define IDC_LIST1                       1022
 #define IDC_LIST2                       1023
 #define IDC_LIST3                       1023
 #define IDC_COMBO1                      1025
 #define IDC_COMBO2                      1026
 #define IDC_COMBO3                      1027
+#define IDC_COMBO_SHAPE                 1028
 #define IDC_MFCPROPERTYGRID1            1037
 #define IDC_MFCBUTTON1                  1038
 #define IDC_MFCBUTTON2                  1039
@@ -101,6 +104,27 @@
 #define IDC_VIP_PAS                     1060
 #define IDC_START_STATIC                1061
 #define IDC_CHECK1                      1062
+#define IDC_RICHEDIT21                  1065
+#define IDC_BUTTON_APPLY                1066
+#define IDC_COMBO_CELLTYPE              1068
+#define IDC_EDIT_CELLW                  1069
+#define IDC_EDIT_CELL_L                 1070
+#define IDC_EDIT_CELL_W                 1071
+#define IDC_EDIT_CELL_H                 1072
+#define IDC_CHECK_SQUARE                1073
+#define IDC_EDIT_RADIAS_E               1074
+#define IDC_EDIT_RADIAS_V               1075
+#define IDC_CHECK_REMOVE_CANTILEVER     1076
+#define IDC_CHECK_REMOVE_INDEPENDENT    1077
+#define IDC_CHECK_PRJDIR                1078
+#define IDC_CHECK_CELLDIR               1079
+#define IDC_EDIT_CELL_X                 1080
+#define IDC_EDIT_CELL_Y                 1081
+#define IDC_EDIT_CELL_Z                 1082
+#define IDC_EDIT_CELL_RX                1086
+#define IDC_EDIT_CELL_RY                1087
+#define IDC_EDIT_CELL_Z2                1088
+#define IDC_EDIT_CELL_RZ                1088
 #define ID_VIEW_PAN                     12000
 #define ID_VIEW_ROTATE                  12001
 #define ID_VIEW_ZOOM                    12002
@@ -154,7 +178,6 @@
 #define ID_HELP_FEEDBACK                32884
 #define ID_HELP_SUPPORT                 32885
 #define ID_CHINESE                      32889
-#define ID_BUTTON4                      32890
 #define ID_ENGLISH                      32890
 #define ID_BUTTON_DEF                   32893
 #define ID_COMBO_DEF                    32894
@@ -164,9 +187,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        376
-#define _APS_NEXT_COMMAND_VALUE         32893
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_RESOURCE_VALUE        373
+#define _APS_NEXT_COMMAND_VALUE         32895
+#define _APS_NEXT_CONTROL_VALUE         1078
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

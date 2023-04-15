@@ -199,6 +199,7 @@
     <ClInclude Include="CADDoc.h" />
     <ClInclude Include="CADView.h" />
     <ClInclude Include="CB.h" />
+    <ClInclude Include="CBFillDlg.h" />
     <ClInclude Include="CHotKey.h" />
     <ClInclude Include="CLANCHOOSE.h" />
     <ClInclude Include="Command.h" />
@@ -249,6 +250,7 @@
     <ClCompile Include="CADDoc.cpp" />
     <ClCompile Include="CADView.cpp" />
     <ClCompile Include="CB.cpp" />
+    <ClCompile Include="CBFillDlg.cpp" />
     <ClCompile Include="CHotKey.cpp" />
     <ClCompile Include="CLANCHOOSE.cpp" />
     <ClCompile Include="Command.cpp" />
