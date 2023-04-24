@@ -157,7 +157,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// smf add 2021/11/03
 	CMFCRibbonCategory *pCategory = m_wndRibbonBar.GetCategory(1);
-	CMFCRibbonPanel *pPanel = pCategory->GetPanel(5);
+	CMFCRibbonPanel *pPanel = pCategory->GetPanel(3);
 	m_wndRibbonBar.SetRedraw(FALSE);
 	CClientDC dc(&m_wndRibbonBar);
 	CFont *pOldFont = dc.SelectObject(m_wndRibbonBar.GetFont());
@@ -219,7 +219,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 {
 	CWaitCursor wait;
 
-	theApp.m_nAppLook = id;
+	theApp.m_nAppLook = ID_VIEW_APPLOOK_WINDOWS_7;
 
 	switch (theApp.m_nAppLook)
 	{

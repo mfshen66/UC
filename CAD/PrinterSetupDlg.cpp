@@ -26,6 +26,8 @@ CPrinterSetupDlg::CPrinterSetupDlg(CWnd* pParent /*=NULL*/)
 	m_li = 80 ;
 	m_lt = 0. ;
 	m_constH = 1 ;
+	m_pl = 20000;
+	m_pw = 20000;
 }
 
 CPrinterSetupDlg::~CPrinterSetupDlg()
@@ -37,6 +39,8 @@ CPrinterSetupDlg::~CPrinterSetupDlg()
 void CPrinterSetupDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_PL, m_pl);
+	DDX_Text(pDX, IDC_EDIT_PW, m_pw);
 }
 
 
@@ -200,6 +204,15 @@ BOOL CPrinterSetupDlg::OnInitDialog()
 	pB->SetCheck(m_constH?1:0) ;
 	pB = (CButton*)GetDlgItem(IDC_RADIO2) ;
 	pB->SetCheck(m_constH?0:1) ;
+
+	CString pixel;
+	pixel.Format(_T("%d"), m_pl);
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_PL);
+	pEdit->SetWindowText(pixel);
+
+	pixel.Format(_T("%d"), m_pw);
+	pEdit = (CEdit*)GetDlgItem(IDC_EDIT_PW);
+	pEdit->SetWindowText(pixel);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE

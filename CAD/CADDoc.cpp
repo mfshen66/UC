@@ -691,7 +691,11 @@ void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 			
 			CString filePath;
 			efpGet(filePath); // 运行文件目录
-			filePath += _T("\\..\\Works\\Test.bmp");
+			filePath += _T("\\..\\Works\\");
+			CString fileName;
+			fileName.Format(_T("z_%lf.2"), z);
+			fileName += _T(".bmp");
+			filePath += fileName;
 
 			RGBQUAD pColorTable[256];
 			for (int i = 0; i < 256; i++)
@@ -701,7 +705,7 @@ void CCADDoc::CutAll(float z) // 2022/08/16 smf modify: double to float
 				pColorTable[i].rgbRed = i;
 				pColorTable[i].rgbReserved = i;
 			}
-			saveBmp(filePath, zb3->pixels, zb3->nx, zb3->ny, 8, pColorTable);
+			bmpSave(filePath, zb3->pixels, zb3->nx, zb3->ny, 8, pColorTable);
 			//bmp4Save(filePath, zb3->nx, zb3->ny, zb3->pixels);
 
 			zb3 = NULL;
@@ -818,11 +822,11 @@ void CCADDoc::SetParameter(PARAMETER* parameter)
 // 绘制模型
 void CCADDoc::Draw(int drawMode, void* pVI)
 {
-	STL* pSTL ;
+	STL* pSTL;
 
 	// STL model
-	viLighting(pVI, 1) ;
-	viAddDefaultLight(pVI) ;
+	viLighting(pVI, 1);
+	viAddDefaultLight(pVI);
 	glColor3ub(0, 0, 0) ;
 	for( pSTL = m_stls ; pSTL != NULL ; pSTL = pSTL->next )
 	{
@@ -1338,7 +1342,7 @@ void CCADDoc::ClearSupport()
 void CCADDoc::Print(PRG* pPrg)
 {
 	int i, n ;
-	double cell_w = 2., r1 = 0.1, r2 = 0.2 ;
+	double cell_w = 1., r1 = 0.1, r2 = 0.1 ;
 	BOX3D box ;
 	STL* stl = NULL ;
 	CB* cb = NULL ;
@@ -1584,25 +1588,7 @@ void CCADDoc::Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm)
 		return ;
 	prgInit(pPrg, n) ;
 
-	// nt add 2019/5/5 debug only
-	/*m_parameter.grays[0] = 100 ;
-	m_parameter.grays[1] = 80 ;
-	m_parameter.grays[2] = 60 ;
-	m_parameter.grays[3] = 40 ;*/
-
 	STL* stl = NULL ;
-	for( stl = m_stls ; stl ; stl = stl->next )
-	{
-		if( stl->zb == NULL &&
-			stl->zb3 == NULL ) // nt add 2021/12/29 这两个条件之一不为NULL
-		{
-			if(!b_mLangFlag)
-				AfxMessageBox(_T("先执行层切操作!")) ;
-			if (b_mLangFlag)
-				MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("Perform layer cut operation first!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
-			return ;
-		}
-	}
 
 	int PL, PW ;
 	if( abs(m_parameter.Dx) == 1 ) // X'与工作台坐标轴X对应同向或相反
@@ -1625,31 +1611,12 @@ void CCADDoc::Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm)
 	}
 	double w = m_parameter.W/PW ; // nt add 2017/5/31
 	COLORREF color = str2ColorRef(m_color) ;
-	PF* pf = pfCreate(&m_parameter, 
-		              m_vol, 
-		              0., 
-		              color, 
-		              m_h, 
-		              m_lt, 
-		              m_li, 
-		              m_lt,
-		              m_li,
-		              m_constH, 
-		              PL,
-		              PW) ;
-	if( pf == NULL )
-	{
-		if (!b_mLangFlag)
-			cadPromptStr(_T("内存错误!")) ;
-		else
-			cadPromptStr(_T("Memory error!"));
-		return ;
-	}
+
 	PARRAY* parray = parrayCreate(PL*PW, w) ; // nt add 2017/5/31
 
 	uchar c ;
-	int iLayer, i, j, k, I, J, li1, li2 ;
-	double x, y, z, h0, h, zmax = GetZMax(), lt1, lt2 ;
+	int iLayer, i, j, I, J, li1 ;
+	double z, h0, h, zmax = GetZMax(), lt1, lt2 ;
 	LAYER* layer = NULL ;
 	ZB* zb = NULL ;
 	ZB2* zb2 = NULL, *zb3 = NULL ; // nt add 2017/5/31 // nt add zb3 2021/12/29
@@ -1660,76 +1627,7 @@ void CCADDoc::Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm)
 	h = h0 ; // 起始层厚度，nt add 2017/6/2
 	while(z < zmax) // nt add 2017/6/2
 	{
-		parameterMatch(&m_parameter, h, li1, lt1, li2, lt2) ; // nt add 2017/6/3
-		layer = layerCreate(iLayer, h, li1, lt1, li2, lt2, pf->nx, pf->ny) ;
-		if( layer == NULL ) // nt add 2018/1/10
-		{
-			parrayFree(parray) ;
-			pfFree(pf) ;
-			if (!b_mLangFlag)
-				AfxMessageBox(_T("内存错误!")) ;
-			else
-				MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("Memory error!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
-			return ;
-		}
-		for( stl = m_stls ; stl ; stl = stl->next )
-		{
-			if( stl->zb )
-			{
-				zb = (ZB*)(stl->zb) ;
-				if( zb )
-					// 2022/08/16 smf modify: 强转double to float
-					zbCut(zb, (float)z) ;
-				zb2 = (ZB2*)(stl->zb2) ; // nt add 2017/5/31
-				if( zb2 ) // nt add 2017/5/31
-					 // 2022/08/16 smf modify: 强转double to float
-					zb2Cut(zb2, (float)z) ; // nt add 2017/5/31
-				parrayMergeZBZB2(parray, zb, zb2) ; // nt add 2017/5/31
-			}
-			else // stl->zb3 != NULL, nt add 2021/12/29
-			{
-				zb3 = (ZB2*)(stl->zb3) ;
-				if (zb3)
-					// 2022/08/16 smf modify: 强转double to float
-					zb2Cut(zb3, (float)z);
-				zb2 = (ZB2*)(stl->zb2) ; // nt add 2017/5/31
-				if (zb2) // nt add 2017/5/31
-					 // 2022/08/16 smf modify: 强转double to float
-					zb2Cut(zb2, (float)z); // nt add 2017/5/31
-				parrayMergeZB2ZB2(parray, zb2, zb3) ; // nt add 2017/5/31
-			}
-
-			if( gray ) // nt add 2019/4/9
-			{
-				if( gvm == 1) // nt add 2019/5/27
-					parrayGray(parray, m_parameter.grays) ; // nt add 2017/5/31
-				else
-					parrayGray1(parray, m_parameter.grays) ;
-			}
-			
-			k = 0 ;
-			for( j = 0 ; j < parray->ny ; j++ )
-			{
-				y = parray->ymin+w*j ;
-				for( i = 0 ; i < parray->nx ; i++ )
-				{
-					x = parray->xmin+w*i ;
-					c = parray->pixels[k] ; ;
-					if( c > 0 )
-					{
-						parameter2PixelCoord(&m_parameter, x, y, I, J) ;
-						// nt add 2018/3/1 implement mirror function
-						if( m_parameter.tis[0]&1 )
-							I = pf->nx-I ;
-						// end mirror
-						layerSet(layer, J*pf->nx+I, c/16) ;
-					}
-					k++ ;
-				}
-			}
-		}
-		//layerSave2(layer, PL, PW, filePath) ; // test only
-		pfAddLayer2(pf, layer) ;
+		CutAll(z);
 
 		Update() ; // nt add 2017/5/17
 
@@ -1742,18 +1640,6 @@ void CCADDoc::Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm)
 	}
 
 	parrayFree(parray) ; // nt add 2017/5/31
-
-	if( pfSave(pf, filePath) != 1 )
-	{
-		pfFree(pf) ;
-		if (!b_mLangFlag)
-			cadPromptStr(_T("存储错误!")) ;
-		else
-			cadPromptStr(_T("Storage error!"));
-		return ;
-	}
-	pfFree(pf) ;
-	pf = NULL ;
 
 	// nt add 2017/9/10
 	prgFinish(pPrg) ;
@@ -3606,7 +3492,7 @@ void CCADDoc::OnButtonCBFill()
 	return;
 }
 
-bool CCADDoc::saveBmp(CString& bmpName, unsigned char * imgBuf, int width, int height, int biBitCount, RGBQUAD * pColorTable)
+bool CCADDoc::bmpSave(CString& bmpName, unsigned char * imgBuf, int width, int height, int biBitCount, RGBQUAD * pColorTable)
 {
 	//如果位图数据指针为0,则没有数据传入,函数返回
 	if (!imgBuf)
@@ -3661,7 +3547,7 @@ bool CCADDoc::saveBmp(CString& bmpName, unsigned char * imgBuf, int width, int h
 		fwrite(pColorTable, sizeof(RGBQUAD), 256, fp);
 
 	int mod = width * biBitCount % 8;
-	uchar** pixels_buffer = new uchar*[lineByte];
+	uchar** pixels_buffer = new uchar*[height];
 
 	for (int i = 0; i < height; i++)
 	{

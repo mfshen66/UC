@@ -34,7 +34,7 @@ void CPrintDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_MFCEDITBROWSE1, m_browse);
-	DDX_Check(pDX, IDC_CHECK1, m_gray);
+	//DDX_Check(pDX, IDC_CHECK1, m_gray);
 }
 
 
@@ -57,7 +57,7 @@ BOOL CPrintDlg::OnInitDialog()
 	CString filePath, buf ;
 	count++ ;
 	efpGet(filePath) ;
-	buf.Format(_T("\\Works\\PrintData%d.p_f"), count) ;
+	buf.Format(_T("\\Works\\"), count) ;
 	filePath += buf ;
 	m_browse.SetWindowText(filePath) ;
 
@@ -65,7 +65,6 @@ BOOL CPrintDlg::OnInitDialog()
 	pB->SetFaceColor(RGB(100,255,255)) ;
 	pB->m_bTransparent = FALSE ;
 	pB->m_bDontUseWinXPTheme = TRUE ;
-
 
 	SetTimer(0, 1000, NULL) ;
 

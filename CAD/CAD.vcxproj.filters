@@ -165,6 +165,9 @@
     <ClInclude Include="CBFillDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GridModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CAD.cpp">
@@ -300,6 +303,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CBFillDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GridModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

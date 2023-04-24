@@ -655,6 +655,7 @@ GP_API int mathGetTriNormal(PNT3D p1, PNT3D p2, PNT3D p3, double tol, VEC3D norm
 GP_API double trimValue(double value, int pre) ;
 GP_API double trimValue2(double value, int pre) ;
 GP_API int triCut(PNT3D A, PNT3D B, PNT3D C, int i, double xyz, double tol, PNT3D ps[2], int as[2]) ;
+GP_API int mathIntSegm2(PNT3D b1, PNT3D e1, PNT3D b2, PNT3D e2, double tol, double mol, PNT3D p1, PNT3D p2); // nt add 2021/7/1
 //--------------------------------------------------------------
 typedef struct _da DA ; // dihedral angle
 struct _da

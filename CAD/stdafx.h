@@ -86,6 +86,7 @@ typedef unsigned _int64 UINT64 ; // nt add 2021/6/5
 #include "ZB2.h" // nt add 2017/5/29
 #include "PArray.h" // nt add 2017/5/31
 #include "Record.h" // nt add 2017/9/2
+#include "GridModel.h" // smf add 2023/04/24
 #include <afxwin.h>
 #include <afxwin.h>
 #include <afxcontrolbars.h>

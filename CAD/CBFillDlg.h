@@ -47,5 +47,7 @@ public:
 
 	afx_msg void OnClickedApply();
 
+	BOOL OnInitDialog();
+
 	DECLARE_MESSAGE_MAP()
 };

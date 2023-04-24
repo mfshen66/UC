@@ -75,34 +75,34 @@ void CBFillDlg::DoDataExchange(CDataExchange* pDX)
 		DDV_MinMaxDouble(pDX, m_size.h, MIN_CELL_SIZE, MAX_CELL_SIZE);
 	}
 	DDX_CBIndex(pDX, IDC_COMBO_CELLTYPE, m_cell_type);
-	DDX_Text(pDX, IDC_EDIT_RADIAS_V, m_r_edge);
+	DDX_Text(pDX, IDC_EDIT_RADIAS_E, m_r_edge);
 	DDX_Text(pDX, IDC_EDIT_RADIAS_V, m_r_vertex);
 	DDX_CBIndex(pDX, IDC_COMBO_SHAPE, m_shape);
 	int remove_cantilever = 0, remove_independent = 0;
 	DDX_Check(pDX, IDC_CHECK_REMOVE_CANTILEVER, remove_cantilever);
-	DDX_Check(pDX, IDC_CHECK_REMOVE_INDEPENDENT, remove_independent);
+	//DDX_Check(pDX, IDC_CHECK_REMOVE_INDEPENDENT, remove_independent);
 	m_remove_opt = (remove_cantilever << 1) + remove_independent;
 
-	int isDirNeeded = -1;
-	DDX_Check(pDX, IDC_CHECK_PRJDIR, isDirNeeded);
-	if (isDirNeeded)
-	{
-		// 位置
-		DDX_Text(pDX, IDC_EDIT_CELL_X, m_trans_seed.pos[0]);
-		DDV_MinMaxDouble(pDX, m_trans_seed.pos[0], -PLAT_RANGE, PLAT_RANGE);
-		DDX_Text(pDX, IDC_EDIT_CELL_Y, m_trans_seed.pos[1]);
-		DDV_MinMaxDouble(pDX, m_trans_seed.pos[1], -PLAT_RANGE, PLAT_RANGE);
-		DDX_Text(pDX, IDC_EDIT_CELL_Z, m_trans_seed.pos[2]);
-		DDV_MinMaxDouble(pDX, m_trans_seed.pos[2], -PLAT_RANGE, PLAT_RANGE);
+	//int isDirNeeded = -1;
+	//DDX_Check(pDX, IDC_CHECK_PRJDIR, isDirNeeded);
+	//if (isDirNeeded)
+	//{
+	//	// 位置
+	//	DDX_Text(pDX, IDC_EDIT_CELL_X, m_trans_seed.pos[0]);
+	//	DDV_MinMaxDouble(pDX, m_trans_seed.pos[0], -PLAT_RANGE, PLAT_RANGE);
+	//	DDX_Text(pDX, IDC_EDIT_CELL_Y, m_trans_seed.pos[1]);
+	//	DDV_MinMaxDouble(pDX, m_trans_seed.pos[1], -PLAT_RANGE, PLAT_RANGE);
+	//	DDX_Text(pDX, IDC_EDIT_CELL_Z, m_trans_seed.pos[2]);
+	//	DDV_MinMaxDouble(pDX, m_trans_seed.pos[2], -PLAT_RANGE, PLAT_RANGE);
 
-		// 旋转角
-		DDX_Text(pDX, IDC_EDIT_CELL_RX, m_trans_seed.rot[0]);
-		DDV_MinMaxDouble(pDX, m_trans_seed.rot[0], -180, 180);
-		DDX_Text(pDX, IDC_EDIT_CELL_RY, m_trans_seed.rot[1]);
-		DDV_MinMaxDouble(pDX, m_trans_seed.rot[1], -180, 180);
-		DDX_Text(pDX, IDC_EDIT_CELL_RZ, m_trans_seed.rot[2]);
-		DDV_MinMaxDouble(pDX, m_trans_seed.rot[2], -180, 180);
-	}
+	//	// 旋转角
+	//	DDX_Text(pDX, IDC_EDIT_CELL_RX, m_trans_seed.rot[0]);
+	//	DDV_MinMaxDouble(pDX, m_trans_seed.rot[0], -180, 180);
+	//	DDX_Text(pDX, IDC_EDIT_CELL_RY, m_trans_seed.rot[1]);
+	//	DDV_MinMaxDouble(pDX, m_trans_seed.rot[1], -180, 180);
+	//	DDX_Text(pDX, IDC_EDIT_CELL_RZ, m_trans_seed.rot[2]);
+	//	DDV_MinMaxDouble(pDX, m_trans_seed.rot[2], -180, 180);
+	//}
 }
 
 BEGIN_MESSAGE_MAP(CBFillDlg, CDialogEx)
@@ -132,4 +132,20 @@ void CBFillDlg::OnClickedApply()
 	}
 
 	return;
+}
+
+BOOL CBFillDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+
+	//CComboBox* pCombo = (CComboBox*)GetDlgItem(IDC_COMBO_CELLTYPE);
+	//
+	//CString pixel;
+	//pixel.Format(_T("%d"), m_pl);
+	//CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_PL);
+	//pEdit->SetWindowText(pixel);
+
+	return 0;
 }

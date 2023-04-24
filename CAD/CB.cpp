@@ -1396,17 +1396,17 @@ int cbDraw(CB* cb, void* pVI)
 			if( line )
 			{
 				//绘制连续单元
-				segm = line->segms ;
-				while(segm)
-				{
-					for( k = segm->k1 ; k <= segm->k2 ; k++ )
-					{
-						min[2] = cb->zmin+cb->w*k ;
-						max[2] = min[2]+cb->w ;
-						drawCube3(min, max) ;
-					}
-					segm = segm->next ;
-				}
+				//segm = line->segms ;
+				//while(segm)
+				//{
+				//	for( k = segm->k1 ; k <= segm->k2 ; k++ )
+				//	{
+				//		min[2] = cb->zmin+cb->w*k ;
+				//		max[2] = min[2]+cb->w ;
+				//		drawCube3(min, max) ;
+				//	}
+				//	segm = segm->next ;
+				//}
 
 				//绘制单个晶胞
 				cell = line->cells;

@@ -83,6 +83,7 @@
 #define IDC_COMBO1                      1025
 #define IDC_COMBO2                      1026
 #define IDC_COMBO3                      1027
+#define IDC_COMBO5                      1028
 #define IDC_COMBO_SHAPE                 1028
 #define IDC_MFCPROPERTYGRID1            1037
 #define IDC_MFCBUTTON1                  1038
@@ -117,14 +118,8 @@
 #define IDC_CHECK_REMOVE_CANTILEVER     1076
 #define IDC_CHECK_REMOVE_INDEPENDENT    1077
 #define IDC_CHECK_PRJDIR                1078
-#define IDC_CHECK_CELLDIR               1079
-#define IDC_EDIT_CELL_X                 1080
-#define IDC_EDIT_CELL_Y                 1081
-#define IDC_EDIT_CELL_Z                 1082
-#define IDC_EDIT_CELL_RX                1086
-#define IDC_EDIT_CELL_RY                1087
-#define IDC_EDIT_CELL_Z2                1088
-#define IDC_EDIT_CELL_RZ                1088
+#define IDC_EDIT_PL                     1080
+#define IDC_EDIT_PW                     1081
 #define ID_VIEW_PAN                     12000
 #define ID_VIEW_ROTATE                  12001
 #define ID_VIEW_ZOOM                    12002
@@ -187,9 +182,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        373
+#define _APS_NEXT_RESOURCE_VALUE        374
 #define _APS_NEXT_COMMAND_VALUE         32895
-#define _APS_NEXT_CONTROL_VALUE         1078
+#define _APS_NEXT_CONTROL_VALUE         1082
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

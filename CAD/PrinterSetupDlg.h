@@ -22,6 +22,9 @@ public:
 	double m_lt ;
 	int m_constH ;
 
+	int m_pl;
+	int m_pw;
+
 	int Load() ; // nt add 2017/9/30
 
 // 对话框数据

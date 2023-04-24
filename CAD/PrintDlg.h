@@ -18,6 +18,7 @@ public:
 #endif
 	PRG m_prg ; // nt add 2017/9/9
 	BOOL m_gray; // nt add 2019/4/9
+
 	CMFCEditBrowseCtrl m_browse;
 
 protected:

@@ -194,7 +194,7 @@ public:
 	static void OutPutSline2(ZB2 *zb2); // 2022/08/17 smf add: 输出Sline2的信息
 	static void OutPutCB(CB *cb, float z); // 2022/09/16 smf add: 输出CB的信息
 	static void FindErrorCB(CB *cb); // 2022/09/16 smf add: 输出CB的信息
-	static bool CCADDoc::saveBmp(CString& bmpName, unsigned char * imgBuf, int width, int height, int biBitCount, RGBQUAD * pColorTable);
+	static bool CCADDoc::bmpSave(CString& bmpName, unsigned char * imgBuf, int width, int height, int biBitCount, RGBQUAD * pColorTable);
 };
 //--------------------------------------------------------------
 // nt add 2017/5/14

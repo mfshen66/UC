@@ -209,6 +209,7 @@
     <ClInclude Include="DocCmd.h" />
     <ClInclude Include="FeedbackDlg.h" />
     <ClInclude Include="GP_API.h" />
+    <ClInclude Include="GridModel.h" />
     <ClInclude Include="LANSAVEBOX.h" />
     <ClInclude Include="LayoutDlg.h" />
     <ClInclude Include="MainFrm.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="Dlg.cpp" />
     <ClCompile Include="DocCmd.cpp" />
     <ClCompile Include="FeedbackDlg.cpp" />
+    <ClCompile Include="GridModel.cpp" />
     <ClCompile Include="LANSAVEBOX.cpp" />
     <ClCompile Include="LayoutDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
