@@ -290,16 +290,13 @@ struct GridModel {
 	FList stlGetFacetFromNum(int N);	// 获取编号为 N 的面片
 	//void GetNormaVectorOnVertex(VList p) ;
 	double stlDistanceTwoPoints(STLPNT3D p1, STLPNT3D p2);	// 计算两点间长
-	double  stlDistanceOneVector(STLPNT3D p1);				// 计算向量长
 
-	STLPNT3D stlDistanceVectorTwoPoint(STLPNT3D p1, STLPNT3D p2);	// 返回两点差向量(单位化), 如果两点过近, 则返回 (0.0,0.0,0.0)
 	STLPNT3D stlTwoVectorProduct(STLPNT3D v1, STLPNT3D v2);			// 返回两点叉乘
 	STLPNT3D stlOPPNormalVector(STLPNT3D v);						// 返回点 v 所对应的相反矢量
 	STLPNT3D CreateMTIPoint();										// 创建默认点 (0.0,0.0,0.0)
 	STLPNT3D CreateMTIPoint(double ix, double iy, double iz);			// 从 xyz 创点
 	STLPNT3D CreateMTIPoint(double p1[]);							// 从数组创点
 	STLPNT3D CreateMTIPoint(double p1[], int iNbStart);				// 从数组的某位置创建点
-	double GetDistanceVertexToCoreOfTrangle(STLPNT3D p, FList face);
 
 	void InitFlagAll();
 	FList Prj(FList f1, double p1[3], FList f2, double p2[3], double tol, double ptOnLine[3], double ptOnFace[3]); // nt add 2022/7/8	

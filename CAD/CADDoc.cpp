@@ -1614,9 +1614,8 @@ void CCADDoc::Out(CString& filePath, PRG* pPrg, BOOL gray, int gvm)
 
 	PARRAY* parray = parrayCreate(PL*PW, w) ; // nt add 2017/5/31
 
-	uchar c ;
-	int iLayer, i, j, I, J, li1 ;
-	double z, h0, h, zmax = GetZMax(), lt1, lt2 ;
+	int iLayer;
+	double z, h0, h, zmax = GetZMax();
 	LAYER* layer = NULL ;
 	ZB* zb = NULL ;
 	ZB2* zb2 = NULL, *zb3 = NULL ; // nt add 2017/5/31 // nt add zb3 2021/12/29
@@ -2432,7 +2431,7 @@ void CCADDoc::OutPutCB(CB * cb, float z)
 		CSEGM* segm = NULL;
 		CELL *cell = NULL;
 		CLINE* line = NULL;
-		int kk = (z - cb->zmin) / cb->w;
+		int kk = (int)((z - cb->zmin) / cb->w);
 		for (int i = 0; i < cb->nx; i++)
 		{
 			for (int j = 0; j < cb->ny; j++)

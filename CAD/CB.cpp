@@ -1375,7 +1375,7 @@ int cbFill(CB* cb, STL* stl, PRG* pPrg, STL* m_stls, double w)
 
 int cbDraw(CB* cb, void* pVI)
 {
-	int i, j, k ;
+	int i, j;
 	PNT3D min, max;
 	CSEGM* segm = NULL ;
 	CLINE* line = NULL ;

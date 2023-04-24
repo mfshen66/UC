@@ -620,7 +620,7 @@ int zb2SliceCBOnZ(ZB2 * zb, CB * cb, float z)
 {
 	int i, j, I, nFacet, nBFacet;
 	int kk = (z - cb->zmin) / cb->w;
-	double dd, center[3] = { 0., 0., 0. };
+	double center[3] = { 0., 0., 0. };
 	CSEGM* segm = NULL;
 	CELL *cell = NULL;
 	CLINE* line = NULL;
