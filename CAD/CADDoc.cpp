@@ -167,6 +167,8 @@ CCADDoc::CCADDoc()
 	// nt add 2017/2/18 load default parameters
 	LoadDefault() ;
 
+	// smf add 2023/04/24
+	m_grid = nullptr;
 	return ;
 }
 
@@ -179,6 +181,11 @@ CCADDoc::~CCADDoc()
 	if( m_pDlg )
 		delete m_pDlg ;
 
+	if (m_grid)
+	{
+		delete m_grid;
+		m_grid = nullptr;
+	}
 	DelAllSTL() ;
 
 	m_copy = NULL ;
@@ -433,6 +440,22 @@ void CCADDoc::Add(STL* pSTL)
 	}
 
 	return ;
+}
+
+void CCADDoc::Add(GridModel* pGM)
+{
+	if (pGM)
+	{
+		pGM->Next = m_grid;
+		m_grid = pGM;
+
+		//m_vol += stlCalVol(pSTL); // nt add 2017/5/14
+
+		/// todo 计算面积
+		Update(); // nt add 2017/8/27
+	}
+
+	return;
 }
 
 // 没有释放pSTL
@@ -823,11 +846,19 @@ void CCADDoc::SetParameter(PARAMETER* parameter)
 void CCADDoc::Draw(int drawMode, void* pVI)
 {
 	STL* pSTL;
-
+	GridModel* pGM;
 	// STL model
 	viLighting(pVI, 1);
 	viAddDefaultLight(pVI);
 	glColor3ub(0, 0, 0) ;
+
+	for (pGM = m_grid; pGM; pGM = pGM->Next)
+	{
+		if (pGM)
+		{
+			pGM->Draw(pVI, EDrawMode::dmNormal);
+		}
+	}
 	for( pSTL = m_stls ; pSTL != NULL ; pSTL = pSTL->next )
 	{
 		// 显示方式1=只画STL
@@ -2211,62 +2242,51 @@ void CCADDoc::OnFileOpen()
 		if( pathName.Find(_T(".STL")) >= 0 ||
 			pathName.Find(_T(".stl")) >= 0 )
 		{
-			STL* pSTL = stlCreate(10000, 100) ;
-			if( stlLoad(pSTL, pathName.GetBuffer(0)) != 1 )
+			GridModel* pGM = new GridModel();
+			int length = WideCharToMultiByte(CP_ACP, 0, pathName, -1, NULL, 0, NULL, NULL);
+			char* fileName = new char[length];
+			WideCharToMultiByte(CP_ACP, 0, pathName, -1, fileName, length, NULL, NULL);
+
+			if (pGM->stlDealInputFile(fileName) == 0)
 			{
-				stlFree(pSTL) ;
-				pSTL = NULL ;
+				Add(pGM);
 				if (!b_mLangFlag)
-					AfxMessageBox(_T("打开文件错误!")) ;
+					cadPromptStr(_T("打开文件成功"));
 				else
-					MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("Open file error!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
+					cadPromptStr(_T("Open file successfully"));
+
+				int nGM = GetNumOfSTL();
+				if (nGM > 1)
+				{
+					CRCreate* pR = new CRCreate(pGM);
+					m_rs.Add(pR);
+					SetModifiedFlag(TRUE);
+				}
+				else
+				{
+					EmptyUndo();
+					SetPathName(pathName);
+					SetTitle(title); // nt add 2017/9/1
+				}
+				Redraw();
 			}
 			else
 			{
-				if( fabs(m_unit-1.) > MIN_DBL ) // 若单位不是mm
-					stlScale(pSTL, m_unit) ; // 转换单位
-				stlCalAttribOfTris(pSTL, 1.e-5) ; // nt add 2017/3/16!!!
-
-				// smf modify 2022/07/19
-				if (GetNumOfSTL() < 1)
+				if (pGM)
 				{
-					m_v[0] = -0.5*(pSTL->box.min[0] + pSTL->box.max[0]);
-					m_v[1] = -0.5*(pSTL->box.min[1] + pSTL->box.max[1]);
-					m_v[2] = /*m_ssp.h*/-pSTL->box.min[2]; // nt modify 2017/9/5
+					delete pGM;
+					pGM = nullptr;
 				}
-				stlMove(pSTL, m_v);
-
-				if (pSTL->box.min[0] < -0.5*m_ds[0] ||
-					pSTL->box.max[0] > 0.5*m_ds[0] ||
-					pSTL->box.min[1] < -0.5*m_ds[1] ||
-					pSTL->box.max[1] > 0.5*m_ds[1] ||
-					pSTL->box.max[2] > m_ds[2])
-				{
-					if (!b_mLangFlag)
-						AfxMessageBox(_T("STL模型超过工作台范围!"));
-					else
-						MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("STL model is beyond the scope of the workbench!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
-					//AfxMessageBox(_T("STL model is beyond the scope of the workbench!"));
-				}
-				Add(pSTL) ;
 				if (!b_mLangFlag)
-					cadPromptStr(_T("打开文件成功")) ;
+					AfxMessageBox(_T("打开文件错误!"));
 				else
-					cadPromptStr(_T("Open file successfully"));
-				int nSTL = GetNumOfSTL() ;
-				if( nSTL > 1 )
-				{
-					CRCreate* pR = new CRCreate(pSTL) ;
-					m_rs.Add(pR) ;
-					SetModifiedFlag(TRUE) ;
-				}
-				else
-				{
-					EmptyUndo() ;
-					SetPathName(pathName) ;
-					SetTitle(title) ; // nt add 2017/9/1
-				}
-				Redraw() ;
+					MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("Open file error!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
+			}
+
+			if (fileName)
+			{
+				delete[]fileName;
+				fileName = nullptr;
 			}
 		}
 		else
@@ -2306,6 +2326,129 @@ void CCADDoc::OnFileOpen()
 	}
 
 	return ;
+}
+
+
+void CCADDoc::OnFileOpenOld()
+{
+	// TODO: Add your command handler code here
+	ClearCmdAll(); // nt add 2017/9/1
+	BOOL b_mLangFlag = GetLang_doc();
+	LPTSTR pch;
+	CString szFilter;
+	CFileDialog dlg(TRUE);
+	szFilter += "STL文件 (.STL)|*.stl|";
+	szFilter += "模型文件 (.SWK)|*.swk|";
+	szFilter += "所有文件 (*.*)|*.*|";
+	pch = szFilter.GetBuffer(0);
+	while ((pch = _tcschr(pch, '|')) != NULL)
+		*pch++ = '\0';
+	dlg.m_ofn.lpstrFilter = szFilter;
+	dlg.m_ofn.lpstrTitle = _T("数据文件");
+	dlg.m_ofn.nFilterIndex = 3;
+	if (dlg.DoModal() == IDOK)
+	{
+		CString title = dlg.GetFileTitle();
+		CString pathName = dlg.GetPathName();
+		if (pathName.Find(_T(".STL")) >= 0 ||
+			pathName.Find(_T(".stl")) >= 0)
+		{
+			GridModel* pGM = new GridModel();
+			STL* pSTL = stlCreate(10000, 100);
+			if (stlLoad(pSTL, pathName.GetBuffer(0)) != 1)
+			{
+				stlFree(pSTL);
+				pSTL = NULL;
+				if (!b_mLangFlag)
+					AfxMessageBox(_T("打开文件错误!"));
+				else
+					MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("Open file error!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
+			}
+			else
+			{
+				if (fabs(m_unit - 1.) > MIN_DBL) // 若单位不是mm
+					stlScale(pSTL, m_unit); // 转换单位
+				stlCalAttribOfTris(pSTL, 1.e-5); // nt add 2017/3/16!!!
+
+				// smf modify 2022/07/19
+				if (GetNumOfSTL() < 1)
+				{
+					m_v[0] = -0.5*(pSTL->box.min[0] + pSTL->box.max[0]);
+					m_v[1] = -0.5*(pSTL->box.min[1] + pSTL->box.max[1]);
+					m_v[2] = /*m_ssp.h*/-pSTL->box.min[2]; // nt modify 2017/9/5
+				}
+				stlMove(pSTL, m_v);
+
+				if (pSTL->box.min[0] < -0.5*m_ds[0] ||
+					pSTL->box.max[0] > 0.5*m_ds[0] ||
+					pSTL->box.min[1] < -0.5*m_ds[1] ||
+					pSTL->box.max[1] > 0.5*m_ds[1] ||
+					pSTL->box.max[2] > m_ds[2])
+				{
+					if (!b_mLangFlag)
+						AfxMessageBox(_T("STL模型超过工作台范围!"));
+					else
+						MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("STL model is beyond the scope of the workbench!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
+					//AfxMessageBox(_T("STL model is beyond the scope of the workbench!"));
+				}
+				Add(pSTL);
+				if (!b_mLangFlag)
+					cadPromptStr(_T("打开文件成功"));
+				else
+					cadPromptStr(_T("Open file successfully"));
+				int nSTL = GetNumOfSTL();
+				if (nSTL > 1)
+				{
+					CRCreate* pR = new CRCreate(pSTL);
+					m_rs.Add(pR);
+					SetModifiedFlag(TRUE);
+				}
+				else
+				{
+					EmptyUndo();
+					SetPathName(pathName);
+					SetTitle(title); // nt add 2017/9/1
+				}
+				Redraw();
+			}
+		}
+		else
+			if (pathName.Find(_T(".SWK")) >= 0 || // nt add 2017/9/1
+				pathName.Find(_T(".swk")) >= 0)
+			{
+				if (m_stls != NULL &&
+					IsModified() == TRUE &&
+					AfxMessageBox(_T("继续将清除现有模型？"), MB_YESNO) == IDNO)
+					return;
+				EmptyUndo(); // nt add 2017/9/2
+				DelAllSTL();
+				CFile file;
+				if (file.Open(pathName, CFile::modeRead))
+				{
+					CArchive ar(&file, CArchive::load);
+					Serialize(ar);
+				}
+				else
+				{
+					if (!b_mLangFlag)
+						AfxMessageBox(_T("打开文件错误!"));
+					else
+						MessageBoxEx(AfxGetApp()->GetMainWnd()->GetSafeHwnd(), _T("Open file error!"), _T("CAD"), MB_ICONEXCLAMATION | MB_OK, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
+					//AfxMessageBox(_T("Open file error!"));
+				}
+				if (!b_mLangFlag)
+					cadPromptStr(_T("打开文件成功"));
+				else
+					cadPromptStr(_T("Open file successfully"));
+				SetPathName(pathName);
+				CollisionDetect();
+				SetTitle(title);
+				Update();
+				Redraw();
+			}
+	}
+
+	return;
 }
 
 BOOL CCADDoc::OnOpenDocument(LPCTSTR lpszPathName)
@@ -3583,6 +3726,17 @@ CCADDoc* cadGetDoc()
 	CCADDoc* pDoc = pView->GetDocument() ;
 
 	return pDoc ;
+}
+
+//--------------------------------------------------------------
+int CCADDoc::GetNumberOfGridModel()
+{
+	int n = 0;
+	GridModel* pGM = nullptr;
+	for (pGM = m_grid; pGM; pGM = pGM->Next)
+		n++;
+
+	return n;
 }
 ///////////////////////////////////////////////////////////////
 

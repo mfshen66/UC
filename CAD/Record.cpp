@@ -1,7 +1,7 @@
 /*	2010/4/9 nt
  *	implementation file class CRecord
  */
-#include "StdAfx.h"
+#include "Stdafx.h"
 
 ////////////////////////////////////////////////////////////////
 //	2010/4/9 nt
@@ -24,10 +24,25 @@ void CRecord::SetSTL(STL* stl)
 {
 	m_stl = stl ;
 }
+
+GridModel* CRecord::GetGridModel()
+{
+	return m_Grid;
+}
+
+void CRecord::SetGridModel(GridModel* pGM)
+{
+	m_Grid = pGM;
+}
 //--------------------------------------------------------------
 CRCreate::CRCreate(STL* stl)
 {
 	m_stl = stl ;
+}
+
+CRCreate::CRCreate(GridModel* pGM)
+{
+	m_Grid = pGM;
 }
 
 CRCreate::~CRCreate()

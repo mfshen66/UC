@@ -70,6 +70,9 @@ public:
 	// nt add 2017/9/2
 	COA m_rs ;
 
+	// smf add 2023/04/24
+	GridModel* m_grid;
+
 // 操作
 public:
 	int SaveDefault() ; // nt add 2017/2/18
@@ -129,6 +132,9 @@ public:
 	void SetPropertySTL(short proper);
 	int IsPropertySetAllStl();
 
+	void Add(GridModel* pGM);
+	int GetNumberOfGridModel();
+
 // 重写
 public:
 	virtual BOOL OnNewDocument();
@@ -150,6 +156,7 @@ protected:
 // 生成的消息映射函数
 protected:
 	afx_msg void OnFileOpen();
+	afx_msg void OnFileOpenOld();
 	afx_msg void OnFileNew();
 	DECLARE_MESSAGE_MAP()
 

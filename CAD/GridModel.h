@@ -225,6 +225,7 @@ struct Pp
 };
 
 struct GridModel {
+	GridModel* Next;
 	VList   VRoot;		// 点二叉树根节点
 	EList   EHead;		// 边链表链头
 	FList   FHead;		// 面链表链头
@@ -240,9 +241,8 @@ struct GridModel {
 	int TraverseNum;
 	int MeshResulttag;
 	char MeshResult[10][256];
-	char PointName[100], ModelName[100];
+	char PointName[100];
 	STLPNT3D PBreak;
-	char PreDataFileName[256]; //暂空,存已有的Path/Geometry/Trajectory
 	double isag, istep, iangle, Plyangle, dval, gapValue;
 	int TrailNumDum, FiberNum;
 	int stlFaceTag;
@@ -280,10 +280,10 @@ struct GridModel {
 	STLVECTOR CalAllVertexNormalVector(STLPNT3D p1, double tol);	// add by wjq, 计算法矢
 
 	//20170825 ADD DAT文件处理
-	void stlDealInputFile();
+	int stlDealInputFile(char* pathName);
 	void stlReadFile(char *file);
-	void stlReadSTLBinFile(char *file);
-	void stlReadStlFile(char *file);
+	int stlReadSTLBinFile(char *file);
+	int stlReadStlFile(char *file);
 	void stlRead4Bytes(FILE *stlfile, char *c);
 	void stlReadDatFile(char *file);
 

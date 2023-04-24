@@ -1744,15 +1744,16 @@ STLVECTOR GridModel::CalAllVertexNormalVector(STLPNT3D p0, double tol)
 	return n;
 }
 
-void GridModel::stlDealInputFile()
+int GridModel::stlDealInputFile(char* pathName)
 {
-	int flag = 0;
+	int flag = 0, rc = 999;
 	FILE *file;
 
 	char buf[300];
 	errno_t err;
-	err = fopen_s(&file, ModelName, "rb");
-	if (strstr(ModelName, "stl") != NULL)
+	err = fopen_s(&file, pathName, "rb");
+	if (strstr(pathName, "stl") != NULL || 
+		strstr(pathName, "STL") != NULL)
 	{
 		flag = 1;
 		fread(buf, 1, 255, file);
@@ -1767,7 +1768,7 @@ void GridModel::stlDealInputFile()
 			}
 		}
 	}
-	else if (strstr(ModelName, "dat") != NULL)
+	else if (strstr(pathName, "dat") != NULL)
 	{
 		flag = 3;
 	}
@@ -1776,74 +1777,75 @@ void GridModel::stlDealInputFile()
 	{
 		if (flag == 1)
 		{
-			stlReadSTLBinFile(ModelName); //二进制stl文件
+			rc = stlReadSTLBinFile(pathName); //二进制stl文件
 		}
 		else if (flag == 2)
 		{
-			stlReadStlFile(ModelName);   //字符stl文件
+			rc = stlReadStlFile(pathName);   //字符stl文件
 		}
 		else if (flag == 3)
 		{
-			stlReadDatFile(ModelName);		//有限元网格Dat文件
+			stlReadDatFile(pathName);		//有限元网格Dat文件
 		}
 	}
+	return rc;
 }
-void GridModel::stlReadFile(char *filename)
-{
-	int flag = 0;
-	FILE *file;
+//void GridModel::stlReadFile(char *filename)
+//{
+//	int flag = 0;
+//	FILE *file;
+//
+//	char buf[300];
+//	errno_t err;
+//	err = fopen_s(&file, filename, "rb");
+//	int FileEx = 1;
+//	if (err != 0) {
+//		MessageBox(NULL, L"文件不存在，请检查输入条件。", L"提示", MB_OK);
+//		FileEx = 0;
+//	}
+//	if (strstr(filename, "stl") != NULL)
+//	{
+//		flag = 1;
+//		fread(buf, 1, 255, file);
+//		char* c;
+//		for (int i = 0; i < 255; i++)
+//		{
+//			c = strstr(buf + i, "facet normal");  //search substring "facet normal"
+//			if (c != NULL)
+//			{
+//				flag = 2;   //find "facet normal", then flag =2,stl文件为字符文件
+//				break;
+//				file = NULL;
+//			}
+//		}
+//	}
+//	else if (strstr(filename, "dat") != NULL)
+//	{
+//		flag = 3;
+//	}
+//	fclose(file);
+//	file = NULL;
+//
+//	if (flag != 0)
+//	{
+//		if (flag == 1)
+//		{
+//			stlReadSTLBinFile(filename); //二进制stl文件
+//		}
+//		else if (flag == 2)
+//		{
+//			stlReadStlFile(filename);   //字符stl文件
+//		}
+//		else if (flag == 3)
+//		{
+//			stlReadDatFile(filename);		//有限元网格Dat文件
+//		}
+//		TraverseNum = 0;
+//		//GetNormaVectorOnVertex(VRoot);//获取顶点处法向 nt comment 2022/6/14
+//	}
+//}
 
-	char buf[300];
-	errno_t err;
-	err = fopen_s(&file, filename, "rb");
-	int FileEx = 1;
-	if (err != 0) {
-		MessageBox(NULL, L"文件不存在，请检查输入条件。", L"提示", MB_OK);
-		FileEx = 0;
-	}
-	if (strstr(filename, "stl") != NULL)
-	{
-		flag = 1;
-		fread(buf, 1, 255, file);
-		char* c;
-		for (int i = 0; i < 255; i++)
-		{
-			c = strstr(buf + i, "facet normal");  //search substring "facet normal"
-			if (c != NULL)
-			{
-				flag = 2;   //find "facet normal", then flag =2,stl文件为字符文件
-				break;
-				file = NULL;
-			}
-		}
-	}
-	else if (strstr(filename, "dat") != NULL)
-	{
-		flag = 3;
-	}
-	fclose(file);
-	file = NULL;
-
-	if (flag != 0)
-	{
-		if (flag == 1)
-		{
-			stlReadSTLBinFile(filename); //二进制stl文件
-		}
-		else if (flag == 2)
-		{
-			stlReadStlFile(filename);   //字符stl文件
-		}
-		else if (flag == 3)
-		{
-			stlReadDatFile(filename);		//有限元网格Dat文件
-		}
-		TraverseNum = 0;
-		//GetNormaVectorOnVertex(VRoot);//获取顶点处法向 nt comment 2022/6/14
-	}
-}
-
-void GridModel::stlReadSTLBinFile(char *filename)
+int GridModel::stlReadSTLBinFile(char *filename)
 {
 	FILE *stlfile;
 
@@ -1861,7 +1863,7 @@ void GridModel::stlReadSTLBinFile(char *filename)
 
 	err = fopen_s(&stlfile, filename, "rb");
 	if (err != 0) {
-		return;
+		return err;
 	}
 
 	fseek(stlfile, 0L, SEEK_SET); //move point to the beginning
@@ -1871,30 +1873,31 @@ void GridModel::stlReadSTLBinFile(char *filename)
 		exit(1);
 	}
 
-	for (int i = 0; i < 80; i++)
+	int n = 0, rc;
+	char buffer[82];
+	rc = (int)fread_s(buffer, 80, sizeof(char), 80, stlfile);
+	if (rc != 80)
 	{
-		char c = getc(stlfile);
-		printf("%c", c);
+		fclose(stlfile);
+		return rc;
 	}
-	printf("\n");
+	rc = (int)fread_s(&n, 4, sizeof(char), 4, stlfile);
+	if (rc != 4 ||
+		n < 1 ||
+		n > 100000000) // nt add 2017/4/2
+	{
+		fclose(stlfile);
+		return rc;
+	}
 
-	buf.c[0] = getc(stlfile); //get the total number of the facet
-	buf.c[1] = getc(stlfile);
-	buf.c[2] = getc(stlfile);
-	buf.c[3] = getc(stlfile);
-	int NumberTotal = buf.i4;  //total number of facet
-	//NumberTotal = 400000;
-	int step = (int)(NumberTotal / 20);
+	int NumberTotal = n;  //total number of facet
+	//int step = (int)(NumberTotal / 20);
 
-	char str[133];
-	strcpy_s(str, "正在打开模型, 请等待");
+	//char str[133];
+	//strcpy_s(str, "正在打开模型, 请等待");
 
 	for (int i = 0; i < NumberTotal; i++)
 	{
-		if (i%step == 0)
-		{
-			strcat_s(str, ".");
-		}
 
 		stlRead4Bytes(stlfile, &buf.c[0]);  //get the vector of the facet    
 		nv.x = buf.r;
@@ -1937,8 +1940,54 @@ void GridModel::stlReadSTLBinFile(char *filename)
 	}
 	fclose(stlfile);
 	stlfile = NULL;
-}
 
+	return 0;
+}
+//{
+//
+//	if (fp)
+//	{
+//		int i, n = 0, rc;
+//		char buf[82];
+//		STLTRI tri;
+//
+//		rc = (int)fread_s(buf, 80, sizeof(char), 80, fp);
+//		if (rc != 80)
+//		{
+//			fclose(fp);
+//			return 0;
+//		}
+//		rc = (int)fread_s(&n, 4, sizeof(char), 4, fp);
+//		if (rc != 4 ||
+//			n < 1 ||
+//			n > 100000000) // nt add 2017/4/2
+//		{
+//			fclose(fp);
+//			return 0;
+//		}
+//		for (i = 0; i < n; i++)
+//		{
+//			rc = stltriLoadBinary(&tri, fp); // 循环读入STLTRI
+//			if (rc == 1)
+//			{
+//				if (stlAddTri(pSTL, &tri) != 1) // 加入
+//				{
+//					fclose(fp);
+//					return 0;
+//				}
+//			}
+//			else
+//				break;
+//		}
+//		fclose(fp);
+//		if (rc == 0)
+//			return 0;
+//		else
+//			return 1;
+//	}
+//	else
+//		return 0;
+//}
 void GridModel::stlRead4Bytes(FILE *stlfile, char *c)
 {
 	c[0] = getc(stlfile);
@@ -1946,7 +1995,7 @@ void GridModel::stlRead4Bytes(FILE *stlfile, char *c)
 	c[2] = getc(stlfile);
 	c[3] = getc(stlfile);
 }
-void GridModel::stlReadStlFile(char *file)
+int GridModel::stlReadStlFile(char *file)
 {
 	FILE		*stlfile;
 	STLPNT3D  p1, p2, p3, nv;
@@ -1955,7 +2004,8 @@ void GridModel::stlReadStlFile(char *file)
 	char    str[256]; // nt modify 2022/7/8 old 80
 	char    *ret, *ip;
 
-	if (fopen_s(&stlfile, file, "r") != 0) {
+	int rc = fopen_s(&stlfile, file, "r");
+	if (rc != 0) {
 		printf("Error: STL file open failed\n");
 		exit(1);
 	}
@@ -2022,13 +2072,14 @@ label:
 		else if (strstr(str, "endsolid") != NULL) {
 			fclose(stlfile);
 			stlfile = NULL;
-			return;
+			return 0;
 		}
 		else {
 			goto label;
 		}
 	}
 	stlfile = NULL;
+	return 1;
 }
 
 void GridModel::stlReadDatFile(char *file)

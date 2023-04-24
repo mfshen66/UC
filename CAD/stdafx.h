@@ -88,7 +88,6 @@ typedef unsigned _int64 UINT64 ; // nt add 2021/6/5
 #include "Record.h" // nt add 2017/9/2
 #include "GridModel.h" // smf add 2023/04/24
 #include <afxwin.h>
-#include <afxwin.h>
 #include <afxcontrolbars.h>
 //--------------------------------------------------------------
 void cadPromptUpdate() ;

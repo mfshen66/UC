@@ -6,6 +6,7 @@
 
 ///////////////////////////////////////////////////////////////
 typedef CObArray COA ;
+struct GridModel;
 //--------------------------------------------------------------
 // 记录系统的建模过程：
 // (1)生成图元
@@ -32,6 +33,7 @@ class CRecord : public CObject
 {
 public:
 	STL* m_stl ;
+	GridModel* m_Grid;
 public:
 	CRecord() ;
 	~CRecord() ;
@@ -39,6 +41,8 @@ public:
 	virtual int GetType() = 0 ;
 	STL* GetSTL() ;
 	void SetSTL(STL* stl) ;
+	GridModel* GetGridModel();
+	void SetGridModel(GridModel* pGM);
 } ;
 //--------------------------------------------------------------
 class CRCreate : public CRecord
@@ -46,6 +50,7 @@ class CRCreate : public CRecord
 public:
 public:
 	CRCreate(STL* stl) ;
+	CRCreate(GridModel* pGM) ;
 	~CRCreate() ;
 
 	int GetType() ;
