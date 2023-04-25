@@ -5,74 +5,6 @@
 
 using namespace std;
 //==============================================================
-/*	1997/4/22 nt
- *	在2D平面上判断原点是否在一个三角形内
- *	return IDIN: in ; IDOUT: not in; IDDEGE, degenerate
- */
-//int mathChkOriInTri2D(double p1[2],
-//	double p2[2],
-//	double p3[2],
-//	double tol)
-//{
-//	int ks[3], i = 0;
-//	double xs[6];
-//
-//	if ((p1[0] > tol && p2[0] > tol && p3[0] > tol) ||
-//		(p1[0] < -tol && p2[0] < -tol && p3[0] < -tol) ||
-//		(p1[1] > tol && p2[1] > tol && p3[1] > tol) ||
-//		(p1[1] < -tol && p2[1] < -tol && p3[1] < -tol))
-//		return IDOUT;
-//
-//	ks[0] = fabs(p1[1]) < tol ? 0 : p1[1] > 0.0 ? 1 : -1;
-//	ks[1] = fabs(p2[1]) < tol ? 0 : p2[1] > 0.0 ? 1 : -1;
-//	ks[2] = fabs(p3[1]) < tol ? 0 : p3[1] > 0.0 ? 1 : -1;
-//	if (ks[0] == 0) xs[i++] = p1[0];
-//	if (ks[1] == 0) xs[i++] = p2[0];
-//	if (ks[2] == 0) xs[i++] = p3[0];
-//	if (i >= 3)
-//		return IDDEGE;
-//	if (ks[0] * ks[1] < 0)
-//		xs[i++] = p1[0] + p1[1] * (p2[0] - p1[0]) / (p1[1] - p2[1]);
-//	if (ks[1] * ks[2] < 0)
-//		xs[i++] = p2[0] + p2[1] * (p3[0] - p2[0]) / (p2[1] - p3[1]);
-//	if (ks[2] * ks[0] < 0)
-//		xs[i++] = p3[0] + p3[1] * (p1[0] - p3[0]) / (p3[1] - p1[1]);
-//
-//	if (i == 2)
-//	{
-//		if (xs[0] * xs[1] < 0.0 ||
-//			fabs(xs[0]) < tol ||
-//			fabs(xs[1]) < tol)
-//			return IDIN;
-//	}
-//
-//	return IDOUT;
-//}
-
-/*	1997/5/5 nt
- *	计算一个点相对于2D三角形的重心坐标
- */
-//int mathCalTri2DGCP(PNT2D p1,
-//	PNT2D p2,
-//	PNT2D p3,
-//	PNT2D p,
-//	PNT3D gc)
-//{
-//	double a11, a12, a21, a22, delta;
-//
-//	a11 = p1[0] - p3[0];
-//	a12 = p2[0] - p3[0];
-//	a21 = p1[1] - p3[1];
-//	a22 = p2[1] - p3[1];
-//	if (fabs(delta = a11 * a22 - a12 * a21) < 1e-20)
-//		return ERUNSUC;
-//	gc[0] = ((p3[1] - p[1])*a12 - (p3[0] - p[0])*a22) / delta;
-//	gc[1] = ((p3[0] - p[0])*a21 - (p3[1] - p[1])*a11) / delta;
-//	gc[2] = 1.0 - gc[0] - gc[1];
-//
-//	return ERSUCSS;
-//}
-
 /*	2016/8 nt
  *  将p投影到三角形上，再按二维情况计算重心坐标
  */
@@ -1067,13 +999,13 @@ BOOL GridModel::stlCreateSTLTriangle(STLPNT3D p1, STLPNT3D p2, STLPNT3D p3)
 	}
 
 
-	nv = stlTwoVectorProduct(v1, v2);
+	nv = v1 ^ v2;
 	if (!nv.norm()) {
 		STLVECTOR v3 = stlTwoVectorMinus(p1, p3);
 		if (!v3.norm()) {
 			return FALSE;
 		}
-		nv = stlTwoVectorProduct(v3, v1);
+		nv = v3 ^ v1;
 		if (!nv.norm()) {
 			return FALSE;
 		}
@@ -1558,12 +1490,6 @@ BOOL GridModel::stlCompareTwo3DPoint(STLPNT3D p3d1, STLPNT3D p3d2, double epsdis
 	return equaled;
 }
 
-double GridModel::stlDistanceTwoPoints(STLPNT3D p1, STLPNT3D p2)
-{
-	double dd = (p1 - p2).norm();
-	return dd;
-}
-
 int GridModel::stlCompareTriangleVertex(STLPNT3D p1, STLPNT3D p2, STLPNT3D p3, STLPNT3D q1, STLPNT3D q2, STLPNT3D q3)
 {
 	STLPNT3D  v1, v2, v3;
@@ -1669,7 +1595,7 @@ double GridModel::triCalArea(STLPNT3D p1, STLPNT3D p2, STLPNT3D p3)
 	STLPNT3D V1, V2, nv;
 	V1 = stlTwoVectorMinus(p2, p1);
 	V2 = stlTwoVectorMinus(p3, p2);
-	nv = stlTwoVectorProduct(V1, V2);
+	nv = V1 ^ V2;
 	double  l1 = nv.norm();
 	return 0.5 * l1;
 }
@@ -1683,13 +1609,13 @@ double GridModel::CalDistofPtAndFace(STLPNT3D p0, FList f)
 	y2 = f->VertexUsed[1]->Coord.y - f->VertexUsed[0]->Coord.y;
 	z1 = f->VertexUsed[2]->Coord.z - f->VertexUsed[1]->Coord.z;
 	z2 = f->VertexUsed[1]->Coord.z - f->VertexUsed[0]->Coord.z;
-	STLPNT3D A = CreateMTIPoint(x1, y1, z1);
-	STLPNT3D B = CreateMTIPoint(x2, y2, z2);
-	STLPNT3D n = stlTwoVectorProduct(A, B);
+	STLPNT3D A = { x1, y1, z1 };
+	STLPNT3D B = { x2, y2, z2 };
+	STLPNT3D n = A ^ B;
 	x3 = p0.x - f->VertexUsed[2]->Coord.x;
 	y3 = p0.y - f->VertexUsed[2]->Coord.y;
 	z3 = p0.z - f->VertexUsed[2]->Coord.z;
-	STLPNT3D Q = CreateMTIPoint(x3, y3, z3);
+	STLPNT3D Q = { x3, y3, z3 };
 	STLPNT3D n2 = vectorNormalize(n);
 	double s = fabs(n2 * Q);
 	return s;
@@ -1790,60 +1716,6 @@ int GridModel::stlDealInputFile(char* pathName)
 	}
 	return rc;
 }
-//void GridModel::stlReadFile(char *filename)
-//{
-//	int flag = 0;
-//	FILE *file;
-//
-//	char buf[300];
-//	errno_t err;
-//	err = fopen_s(&file, filename, "rb");
-//	int FileEx = 1;
-//	if (err != 0) {
-//		MessageBox(NULL, L"文件不存在，请检查输入条件。", L"提示", MB_OK);
-//		FileEx = 0;
-//	}
-//	if (strstr(filename, "stl") != NULL)
-//	{
-//		flag = 1;
-//		fread(buf, 1, 255, file);
-//		char* c;
-//		for (int i = 0; i < 255; i++)
-//		{
-//			c = strstr(buf + i, "facet normal");  //search substring "facet normal"
-//			if (c != NULL)
-//			{
-//				flag = 2;   //find "facet normal", then flag =2,stl文件为字符文件
-//				break;
-//				file = NULL;
-//			}
-//		}
-//	}
-//	else if (strstr(filename, "dat") != NULL)
-//	{
-//		flag = 3;
-//	}
-//	fclose(file);
-//	file = NULL;
-//
-//	if (flag != 0)
-//	{
-//		if (flag == 1)
-//		{
-//			stlReadSTLBinFile(filename); //二进制stl文件
-//		}
-//		else if (flag == 2)
-//		{
-//			stlReadStlFile(filename);   //字符stl文件
-//		}
-//		else if (flag == 3)
-//		{
-//			stlReadDatFile(filename);		//有限元网格Dat文件
-//		}
-//		TraverseNum = 0;
-//		//GetNormaVectorOnVertex(VRoot);//获取顶点处法向 nt comment 2022/6/14
-//	}
-//}
 
 int GridModel::stlReadSTLBinFile(char *filename)
 {
@@ -1930,11 +1802,6 @@ int GridModel::stlReadSTLBinFile(char *filename)
 		char c = getc(stlfile);
 		c = getc(stlfile);
 
-		STLPNT3D vp1, vp2;
-		vp1 = CreateMTIPoint();
-		vp2 = nv;
-		nv = stlTwoVectorMinus(vp2, vp1);
-		nv.norm();
 		stlCreateFace(&nv, &p1, &p2, &p3, -1);   //生成一个三角片面,nv为法向量,p为三个顶点坐标
 
 	}
@@ -1943,51 +1810,7 @@ int GridModel::stlReadSTLBinFile(char *filename)
 
 	return 0;
 }
-//{
-//
-//	if (fp)
-//	{
-//		int i, n = 0, rc;
-//		char buf[82];
-//		STLTRI tri;
-//
-//		rc = (int)fread_s(buf, 80, sizeof(char), 80, fp);
-//		if (rc != 80)
-//		{
-//			fclose(fp);
-//			return 0;
-//		}
-//		rc = (int)fread_s(&n, 4, sizeof(char), 4, fp);
-//		if (rc != 4 ||
-//			n < 1 ||
-//			n > 100000000) // nt add 2017/4/2
-//		{
-//			fclose(fp);
-//			return 0;
-//		}
-//		for (i = 0; i < n; i++)
-//		{
-//			rc = stltriLoadBinary(&tri, fp); // 循环读入STLTRI
-//			if (rc == 1)
-//			{
-//				if (stlAddTri(pSTL, &tri) != 1) // 加入
-//				{
-//					fclose(fp);
-//					return 0;
-//				}
-//			}
-//			else
-//				break;
-//		}
-//		fclose(fp);
-//		if (rc == 0)
-//			return 0;
-//		else
-//			return 1;
-//	}
-//	else
-//		return 0;
-//}
+
 void GridModel::stlRead4Bytes(FILE *stlfile, char *c)
 {
 	c[0] = getc(stlfile);
@@ -2164,7 +1987,7 @@ labell:
 			l2 = (p1 - p3);
 			nv = (l1 ^ l2);
 			nv.norm();
-			nv = stlOPPNormalVector(nv);
+			nv = -nv;
 			stlCreateFace(&nv, &p1, &p2, &p3, -1);
 			goto labell;
 		}
@@ -2187,44 +2010,6 @@ labell:
 // Input:		 L1  L2  两向量
 // Return:  叉积
 ///////////////////////////////////////////////////////////////////////////////////////
-STLPNT3D  GridModel::stlTwoVectorProduct(STLPNT3D L1, STLPNT3D L2)
-{
-	STLPNT3D P = PBreak;	// ?
-	P.x = L1.y * L2.z - L1.z * L2.y;
-	P.y = L1.z * L2.x - L1.x * L2.z;
-	P.z = L1.x * L2.y - L1.y * L2.x;
-	return P;
-}
-STLPNT3D GridModel::stlOPPNormalVector(STLPNT3D p1)
-{
-	p1 = stlTwoVectorMinus(CreateMTIPoint(), p1);
-	return p1;
-}
-STLPNT3D GridModel::CreateMTIPoint()//创建默认点
-{
-	STLPNT3D pTemp;
-	pTemp = CreateMTIPoint(0., 0., 0.);
-	return pTemp;
-}
-STLPNT3D GridModel::CreateMTIPoint(double ix, double iy, double iz)//从xyz创点
-{
-	STLPNT3D pTemp;
-	pTemp.x = ix;	pTemp.y = iy;	pTemp.z = iz;
-	return pTemp;
-}
-STLPNT3D GridModel::CreateMTIPoint(double p1[])//从数组创点
-{
-	STLPNT3D pTemp;
-	pTemp = CreateMTIPoint(p1[0], p1[1], p1[2]);
-	return pTemp;
-}
-STLPNT3D GridModel::CreateMTIPoint(double p1[], int iNbStart)//从数组创点
-{
-	STLPNT3D pTemp;
-	pTemp = CreateMTIPoint(p1[iNbStart + 0], p1[iNbStart + 1], p1[iNbStart + 2]);
-	return pTemp;
-}
-
 STLVECTOR vectorNormalize(STLVECTOR& iVector)
 {
 	STLVECTOR vector_normal = { 0. };
